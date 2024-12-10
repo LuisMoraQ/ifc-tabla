@@ -1,0 +1,254 @@
+
+
+.container-tabla {
+    position: absolute;
+    width: 28rem;
+    height: 100%;
+    background-color: black;
+    top: 0;
+    color: white;
+}
+
+h4 {
+    font-family: ui-serif !important;
+    margin-top: 0.5rem !important;
+    margin-bottom: 0.5rem !important;
+}
+
+.togle-btn-1 {
+    position: absolute !important;
+    margin-left: 0;
+    top: 0;
+    margin-top: 0.5rem;
+}
+.togle-btn-2 {
+    position: absolute !important;
+    margin-left: 28rem;
+    top: 0;
+    margin-top: 0.5rem;
+}
+.b-containers {
+    border-bottom: 1px solid white !important;
+    border-top: 1px solid white !important;
+    padding: 0 0.5rem;
+}
+
+.btn-custom-togle {
+    background-color: black !important;
+    border-color: #5d5a5a !important;
+    /* border-radius: 0 !important; */
+}
+
+.header-nav {
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+.color-h4 {
+    background-color: rgb(25, 25, 77);
+    border-radius: 5px;
+    font-size: 15px !important;
+}
+
+.h-tablas-container {
+    height: calc(100vh - 100px);
+    width: 100%;
+}
+
+.head-sticky{
+    position: sticky;
+    top: -0.1px;
+}
+
+/* ::-webkit-scrollbar {
+    width: 10px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: #888;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: #5152aa;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: #1336aa;
+  } */
+  ::-webkit-scrollbar {
+    width: 10px; /* Ancho de la barra de desplazamiento vertical */
+  }
+
+  /* Barra de desplazamiento horizontal */
+  ::-webkit-scrollbar-horizontal {
+    height: 10px; /* Altura de la barra de desplazamiento horizontal */
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #888; /* Color del fondo de la pista */
+  }
+
+  /* Parte activa de la barra de desplazamiento (thumb) */
+  ::-webkit-scrollbar-thumb {
+    background: #5152aa; /* Color del "dedo" (thumb) */
+  }
+
+  /* Cuando el thumb está sobrevolado */
+  ::-webkit-scrollbar-thumb:hover {
+    background: #1336aa;
+  }
+
+  /* Personalización de la barra horizontal */
+  ::-webkit-scrollbar-horizontal-thumb {
+    background: #5152aa;
+  }
+  .h-13 {
+    height: 13px !important;
+  }
+  .btn-cst {
+   cursor: pointer;
+   pointer-events: all;
+  }
+
+  .highlight-row {
+    background-color: rgb(137 125 53) !important;
+  }
+
+  .btn-mini2 {
+    padding-top: 0.25rem !important; 
+    padding-bottom: 0.25rem !important; 
+    padding-left: 0.5rem !important; 
+    padding-right: 0.5rem !important; 
+    font-size: 0.55rem !important;
+    color: white !important;
+  }
+
+  .btn.active {
+    background-color: #6c757d; /* Cambiar el color de fondo cuando está activo */
+    box-shadow: inset 0px 0px 5px rgba(0, 0, 0, 0.2); /* Sombra de presión */
+  }
+
+
+  .tabs {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  
+  .tab-titles {
+    display: flex;
+    justify-content: space-between;
+    padding: 0;
+    list-style: none;
+    margin: 0;
+    font-size: smaller;
+  }
+  
+  .tab-title {
+    padding: 3px 10px;
+    cursor: pointer;
+    background-color: #f1f1f1;
+    color: #595c59;
+    border: 1px solid #ccc;
+    text-align: center;
+    width: 33.33%;
+    transition: background-color 0.3s;
+  }
+  
+  .tab-title:hover {
+    background-color: #ddd;
+  }
+  
+  .tab-title.active {
+    background-color: rgb(25, 25, 77);
+    color: white;
+    font-weight: bold;
+  }
+  
+  .tab-content {
+    padding: 20px 0px;
+    border-top: 1px solid #ccc;
+  }
+  
+  .tab-pane {
+    display: none;
+  }
+  
+  .tab-pane.active {
+    display: block;
+  }
+  
+  h2 {
+    margin-top: 0;
+  }
+
+  .w-35 {
+    width: 30% !important;
+    border-right-color: #676b67 ;
+  }
+
+  .w-65 {
+    width: 70% !important;
+    font-size: 10px !important;
+  }
+  .cstm {
+    padding: 5px 10px;
+    font-size: 13px;
+    height: 28px;
+  }
+
+  .loader {
+    width: 48px;
+    height: 48px;
+    display: inline-block;
+    position: relative;
+    border: 2px solid #FFF;
+    box-sizing: border-box;
+    animation: rotation 2s linear infinite;
+  }
+  .loader::after,
+  .loader::before {
+    content: '';  
+    box-sizing: border-box;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    margin: auto;
+    border: 2px solid #FF3D00;
+    width: 38px;
+    height: 38px;
+    animation: rotationBack 1.5s linear infinite;
+    transform-origin: center center;
+  }
+  .loader::before {
+    width: 28px;
+    height: 28px;
+    border-color: #FFF;
+    box-sizing: border-box;
+    animation: rotation 1s linear infinite;
+  }
+  
+  @keyframes rotation {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  } 
+  @keyframes rotationBack {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(-360deg);
+    }
+  }
+  
+      
+  .contenido-centrado {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }

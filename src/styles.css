@@ -1,1 +1,70 @@
 /* You can add global styles to this file, and also import other style files */
+bim-grid {
+    position: fixed !important;
+    top: 0 !important;
+    max-inline-size: max-content !important;
+}
+
+/* .propertiesPanel, td{
+    color: antiquewhite;
+} */
+table thead {
+    font-size: 10px;
+    background-color: #3f3c3c !important;
+}
+
+table tbody {
+    font-size: 10px;
+}
+/* table thead tr th {
+    border: 2px solid blanchedalmond !important;
+    font-weight: 700;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+table tbody tr td {
+    border: 1px solid blanchedalmond !important;
+} */
+
+.notdata {
+    text-align: center !important;
+    color: coral !important;
+}
+
+.btn-bim {
+    width: 20px !important;
+    height: 20px !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    padding: 0 !important; /* Eliminar padding que pueda estar causando el desbordamiento */
+    display: flex;
+    justify-content: center; /* Centrar contenido horizontalmente */
+    align-items: center; /* Centrar contenido verticalmente */
+  }
+  
+  .btn-bim label {
+    font-size: 12px; /* Ajustar el tamaño de la fuente según sea necesario */
+    margin: 0; /* Eliminar márgenes adicionales */
+  }
+  
+  .icon-plus, .icon-minus {
+    font-size: 16px; /* Ajusta el tamaño del icono a un tamaño apropiado */
+    line-height: 1;
+    margin: 0;
+  }
+  .btn-bim {
+    pointer-events: all; /* Asegura que el botón reciba eventos de clic */
+  }
+
+  .toggle-btn {
+    cursor: pointer;
+    background: none;
+    border: none;
+    color: blue;
+    text-decoration: underline;
+    font-size: 14px;
+  }
+  
+  .toggle-btn:hover {
+    color: darkblue;
+  }
+  

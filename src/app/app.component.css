@@ -190,6 +190,16 @@ h4 {
     width: 70% !important;
     font-size: 10px !important;
   }
+
+  .w-50 {
+    width: 50% !important;
+    border-right-color: #676b67 ;
+  }
+
+  .w-50-a {
+    width: 50% !important;
+    font-size: 10px !important;
+  }
   .cstm {
     padding: 5px 10px;
     font-size: 13px;

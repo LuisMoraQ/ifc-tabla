@@ -29,7 +29,7 @@
                     <table class=" table-bordered w-100" style="table-layout: fixed;">
                         <thead class="head-sticky text-center">
                             <tr>
-                                <!-- <th></th> -->
+                                <th [style.width.px]="40"></th>
                                 <th class="propertiesPanel" [style.width.px]="40">ACTIVO</th>
                                 <th class="propertiesPanel" [style.width.px]="200">TIPO</th>
                                 <th class="propertiesPanel" [style.min-width.px]="250">ELEMENTO</th>
@@ -41,11 +41,11 @@
                                 <ng-container *ngFor="let row of dataIFC; let i = index; trackBy: trackByFn">
                                     <ng-container *ngIf="row.mostrar">
                                         <tr (click)="seleccionRow(row,i)" #fila  tabindex="0">
-                                            <!-- <td>{{i}} - {{row.mostrar}}</td> -->
-                                            <td class="text-center" [ngClass]="{'highlight-row': this.filaSel == i }">
+                                            <td>{{i}}</td>
+                                            <td class="text-center" [ngClass]="{'highlight-row': this.filaSel == row.ind }">
                                                 <input class="form-check-input" type="checkbox" value="row.active">
                                             </td>
-                                            <td class="text-center" [ngClass]="{'highlight-row': this.filaSel == i }">
+                                            <td class="text-center" [ngClass]="{'highlight-row': this.filaSel == row.ind }">
                                                 <div class="d-flex align-content-center"
                                                     [ngStyle]="{'margin-left':  (row.nivel * 10)  + 'px'}">
                                                     <!-- <button class="btn btn-secondary btn-mini ">  -->
@@ -72,7 +72,7 @@
                                                 </div>
 
                                             </td>
-                                            <td [ngClass]="{'highlight-row': this.filaSel == i }">
+                                            <td [ngClass]="{'highlight-row': this.filaSel == row.ind }">
                                                 {{row.informacion?.Name?.value}}</td>
                                             <!-- <td class="text-center" >-</td> -->
                                         </tr>
@@ -93,9 +93,9 @@
                 <ul class="tab-titles">
                     <li class="tab-title" data-tab="tab-1" (click)="tab=0" [ngClass]="{'active': tab == 0}">PROPIEDADES
                     </li>
-                    <li class="tab-title" data-tab="tab-2" (click)="tab=1" [ngClass]="{'active': tab == 1}">LOCALIZACIÓN
+                    <li class="tab-title" data-tab="tab-2" (click)="tab=1" [ngClass]="{'active': tab == 1}">GEOMETRICOS
                     </li>
-                    <li class="tab-title" data-tab="tab-3" (click)="tab=2" [ngClass]="{'active': tab == 2}">Pestaña 3
+                    <li class="tab-title" data-tab="tab-3" (click)="tab=2" [ngClass]="{'active': tab == 2}">DIMENSIONES
                     </li>
                 </ul>
 
@@ -127,8 +127,36 @@
                     </ul>
                 </div>
                 <div class="tab-content overflow-auto" *ngIf="tab == 1">
+                    <ul class="list-group list-group-horizontal-sm">
+                        <li class="list-group-item w-50 fw-semibold cstm">Bounding Box Length</li>
+                        <li class="list-group-item w-50-a cstm">{{dataGeometrica?.boundingboxlength}}</li>
+                    </ul>
+                    <ul class="list-group list-group-horizontal-sm">
+                        <li class="list-group-item w-50 fw-semibold cstm">Bounding Box Width</li>
+                        <li class="list-group-item w-50-a cstm">{{dataGeometrica?.boundingboxwidth}}</li>
+                    </ul>
+                    <ul class="list-group list-group-horizontal-sm">
+                        <li class="list-group-item w-50 fw-semibold cstm">Bounding Box Height</li>
+                        <li class="list-group-item w-50-a cstm">{{dataGeometrica?.boundingboxheight}}</li>
+                    </ul>
                 </div>
                 <div class="tab-content overflow-auto" *ngIf="tab == 2">
+                    <ul class="list-group list-group-horizontal-sm">
+                        <li class="list-group-item w-50 fw-semibold cstm">Area Max</li>
+                        <li class="list-group-item w-50-a cstm">{{dataGeometrica?.AreaMaxima}}</li>
+                    </ul>
+                    <ul class="list-group list-group-horizontal-sm">
+                        <li class="list-group-item w-50 fw-semibold cstm">Thickness</li>
+                        <li class="list-group-item w-50-a cstm">{{dataGeometrica?.Thickness}}</li>
+                    </ul>
+                    <ul class="list-group list-group-horizontal-sm">
+                        <li class="list-group-item w-50 fw-semibold cstm">Area Total</li>
+                        <li class="list-group-item w-50-a cstm">{{dataGeometrica?.AreaTotal}}</li>
+                    </ul>
+                    <ul class="list-group list-group-horizontal-sm">
+                        <li class="list-group-item w-50 fw-semibold cstm">Volumen</li>
+                        <li class="list-group-item w-50-a cstm">{{dataGeometrica?.volumen}}</li>
+                    </ul>
                 </div>
             </div>
 

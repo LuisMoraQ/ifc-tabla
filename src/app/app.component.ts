@@ -24,6 +24,7 @@ interface Elemento {
   clase: string;
   claseTraducida: string;
   mostrar: boolean;
+  ind: number | null
 }
 @Component({
   selector: 'app-root',
@@ -52,6 +53,9 @@ export class AppComponent implements OnInit, AfterViewInit {
   items = [];
   tab: number = 0;
   buscando = false;
+  dataGeometrica: any = {};
+  highlighter!: OBCF.Highlighter;
+  noCargarData: boolean = false;
   // components = new OBC.Components();
   // worlds = this.components.get(OBC.Worlds);
 
@@ -360,6 +364,7 @@ export class AppComponent implements OnInit, AfterViewInit {
   constructor(private cdr: ChangeDetectorRef) {}
 
   async buscar(map: any) {
+    console.log('map', map)
     const array = Object.keys(map);
     const values = Object.values(map);
     const uniqueValues = [...new Set(values.flatMap((set: any) => [...set]))];
@@ -372,9 +377,10 @@ export class AppComponent implements OnInit, AfterViewInit {
       const index = this.dataIFC.findIndex((ele) => ele.informacion === data);
       if (index !== -1) {
         const elemento = this.dataIFC[index];
-
         this.seleccionRow(elemento, index, true);
       }
+    } else {
+      this.dataGeometrica = {};
     }
 
     let menorx = Infinity;
@@ -392,7 +398,6 @@ export class AppComponent implements OnInit, AfterViewInit {
 
       if (row) {
         arr.push(row);
-
         if (row.geometry && row.geometry.boundingBox) {
           row.geometry.computeBoundingBox();
           const boundingBox = row.geometry.boundingBox;
@@ -411,8 +416,10 @@ export class AppComponent implements OnInit, AfterViewInit {
         }
       }
     }
+    console.log('arr', arr);
+    let volumen;
     if (this.verVolumen) {
-      const vol = await this.volumen.getVolumeFromMeshes(arr);
+      volumen = await this.volumen.getVolumeFromMeshes(arr);
       // console.log('this.volumen', this.volumen);
     }
 
@@ -420,7 +427,7 @@ export class AppComponent implements OnInit, AfterViewInit {
     const x = Number((mayorx - menorx).toFixed(2));
     const y = Number((mayory - menory).toFixed(2));
     const z = Number((mayorz - menorz).toFixed(2));
-    const volumen = x * y * z;
+    // const volumen = x * y * z;
     const AreaTotal = 2 * (x * y + x * z + y * z);
     const a = x * y;
     const b = x * z;
@@ -428,10 +435,16 @@ export class AppComponent implements OnInit, AfterViewInit {
     const AreaMaxima = Math.max(a, b, c);
     const Thickness = Math.min(x, y, z);
     // console.log(x, y, z);
-    // console.log('volumen', volumen);
-    // console.log('AreaTotal', AreaTotal);
-    // console.log('AreaMaxima', AreaMaxima);
-    // console.log('Thickness', Thickness);
+
+    this.dataGeometrica = {
+      boundingboxlength: x,
+      boundingboxwidth: y,
+      boundingboxheight: z,
+      volumen: volumen,
+      AreaTotal: AreaTotal,
+      AreaMaxima: AreaMaxima,
+      Thickness: Thickness,
+    };
   }
 
   async antOcultos(index: number) {
@@ -449,7 +462,15 @@ export class AppComponent implements OnInit, AfterViewInit {
       } else {
       }
     }
-    // this.cdr.detectChanges();
+    for (let i = index+ 1; i < this.dataIFC.length; i++) {
+      const element = this.dataIFC[i];
+      if (element.nivel == seleccionado.nivel) {
+        this.dataIFC[i].mostrar = true;
+      } else if (element.nivel < seleccionado.nivel) {
+         break
+      }
+    }
+    this.cdr.detectChanges();
   }
 
   async crearTabla(buffer: any, group: any) {
@@ -462,6 +483,7 @@ export class AppComponent implements OnInit, AfterViewInit {
         const index = parseInt(match[1], 10);
         if (indexedLines.length <= index) {
           indexedLines.length = index + 1;
+          
         }
         indexedLines[index] = line;
       }
@@ -472,8 +494,10 @@ export class AppComponent implements OnInit, AfterViewInit {
     this.items = group.items;
     this.arrFragments = group.children;
     const properties = group.getLocalProperties();
+
     const arrayCompleto: any[] = [];
-    const propertiesArray = Object.values(properties);
+    const propertiesArray: any = Object.values(properties);
+
     propertiesArray.forEach((ele: any) => (arrayCompleto[ele.expressID] = ele));
     for (let i = 0; i < arrayCompleto.length; i++) {
       const element = arrayCompleto[i];
@@ -491,6 +515,7 @@ export class AppComponent implements OnInit, AfterViewInit {
       ),
       mostrar: true,
       nivel: 0,
+      ind: null
     };
     proyecto.push(project);
     const site: Elemento = {
@@ -502,6 +527,7 @@ export class AppComponent implements OnInit, AfterViewInit {
       ),
       mostrar: true,
       nivel: 1,
+      ind: null
     };
     proyecto.push(site);
     const building: Elemento = {
@@ -513,6 +539,7 @@ export class AppComponent implements OnInit, AfterViewInit {
       ),
       mostrar: true,
       nivel: 2,
+      ind: null
     };
     proyecto.push(building);
     const contenedores: any[] = propertiesArray.filter(
@@ -533,6 +560,7 @@ export class AppComponent implements OnInit, AfterViewInit {
                 informacion: data,
                 nivel: 5,
                 mostrar: false,
+                ind: null
               };
             });
           elefiltrado = elefiltrado.concat(filtrados);
@@ -557,6 +585,7 @@ export class AppComponent implements OnInit, AfterViewInit {
               nivel: 4,
               claseTraducida: '',
               mostrar: false,
+              ind: null
             };
             result.push(ob);
             currentConstructorName = item.clase;
@@ -575,6 +604,7 @@ export class AppComponent implements OnInit, AfterViewInit {
         nivel: 3,
         claseTraducida: '',
         mostrar: true,
+        ind: null
       };
       proyecto.push(obj);
       proyecto = proyecto.concat(elementos);
@@ -621,7 +651,8 @@ export class AppComponent implements OnInit, AfterViewInit {
       IfcCovering: 'Revestimientos',
     };
 
-    proyecto.forEach((elemento) => {
+    proyecto.forEach((elemento, index) => {
+      elemento.ind = index
       if (elemento.nivel > 2) {
         const claseOriginal = elemento.clase;
         let claseTraducida;
@@ -633,6 +664,7 @@ export class AppComponent implements OnInit, AfterViewInit {
             diccionarioTraduccion2[claseOriginal] || elemento.clase;
         }
         elemento.claseTraducida = claseTraducida;
+        
       }
     });
     this.dataIFC = proyecto;
@@ -704,8 +736,7 @@ export class AppComponent implements OnInit, AfterViewInit {
       };
       const model = await fragmentIfcLoader.load(buffer);
       this.crearTabla(buffer, model);
-      // let fragmentBbox = components.get(OBC.BoundingBoxer);
-      // await fragmentBbox.add(model);
+
       for (const child of model.children) {
         if (child instanceof THREE.Mesh) {
           world.meshes.add(child);
@@ -717,17 +748,30 @@ export class AppComponent implements OnInit, AfterViewInit {
       highlighter.clear();
       highlighter.dispose();
       highlighter.setup({ world: world });
+      highlighter.onBeforeUpdate
       const fragments = model.children;
 
       highlighter.events['select']?.onHighlight.add(async (fragmentIdMap) => {
-        this.buscar(fragmentIdMap);
+        if (this.noCargarData) {
+          this.noCargarData = false
+        } else {
+          this.buscar(fragmentIdMap);
+        }
+        
       });
       highlighter.events['select']?.onClear.add(() => {
         this.volumen.deleteAll();
         this.dimensions.deleteAll();
       });
-      const indexer = components.get(OBC.IfcRelationsIndexer);
-
+     
+      this.highlighter = highlighter
+      
+      // const indexer = components.get(OBC.IfcRelationsIndexer);
+      // const fragmentsManager = components.get(OBC.FragmentsManager);
+      // console.log('indexer', indexer)
+      // fragmentsManager.onFragmentsLoaded.add(async (model) => {
+      //   if (model.hasProperties) await indexer.process(model);
+      // });
       this.components = components;
       this.volumen = components.get(OBCF.VolumeMeasurement);
       this.volumen.world = world;
@@ -774,31 +818,48 @@ export class AppComponent implements OnInit, AfterViewInit {
         nivel = element.informacion?.Name?.value;
       }
     }
+    
     this.dataIFC[index].mostrar = true;
     this.guid = proyecto;
     this.nivel = nivel;
-    this.filaSel = index;
+    this.filaSel = row.ind;
     this.infoSeleccionado = row;
-
+    const fragmentMap = await this.busquedaFragmentos(row.informacion.expressID)
+    if (Object.keys(fragmentMap).length !== 0) {
+     
+      this.noCargarData = true
+      this.highlighter.highlightByID("select", fragmentMap, true)
+    }
+    
     if (anteriores) {
       await this.antOcultos(index);
       setTimeout(() => {
-        const filasVisibles = this.dataIFC.filter(r => r.mostrar); 
+        const filasVisibles = this.dataIFC.filter((r) => r.mostrar);
         const indexVisible = filasVisibles.findIndex((r) => r === row);
         if (indexVisible >= 0 && this.filas) {
-          const filasArray = this.filas.toArray();  
+          const filasArray = this.filas.toArray();
           const fila = filasArray[indexVisible];
-    
+
           if (fila) {
             fila.nativeElement.focus();
           }
         }
       }, 100);
     }
+  }
 
-    // this.dataIFC = [...this.dataIFC];
-
-    // this.cdr.detectChanges();
+  async busquedaFragmentos(idExpress:any) {
+    const encontrados:any[] = this.items.filter((ele:any) => 
+      ele.ids.has(idExpress)
+    );
+    let fragmentIdMap: any = {}
+    if (encontrados.length) {
+      for (const element of encontrados) {
+        fragmentIdMap[element.id] = element.ids
+      }
+    }
+    // console.log('fragmentIdMap', fragmentIdMap)
+    return fragmentIdMap
   }
 
   async parseIfcLine(line: string) {

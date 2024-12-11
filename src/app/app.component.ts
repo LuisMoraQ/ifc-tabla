@@ -56,315 +56,10 @@ export class AppComponent implements OnInit, AfterViewInit {
   dataGeometrica: any = {};
   highlighter!: OBCF.Highlighter;
   noCargarData: boolean = false;
-  // components = new OBC.Components();
-  // worlds = this.components.get(OBC.Worlds);
 
-  // world = this.worlds.create<
-  //   OBC.SimpleScene,
-  //   OBC.SimpleCamera,
-  //   OBCF.PostproductionRenderer
-  // >();
-  // fragments = this.components.get(OBC.FragmentsManager);
-  // fragmentIfcLoader = this.components.get(OBC.IfcLoader);
-  // highlighter = this.components.get(OBCF.Highlighter);
-  // volumen = this.components.get(OBCF.VolumeMeasurement);
-  // areaDims = this.components.get(OBCF.AreaMeasurement);
-  // classifier = this.components.get(OBC.Classifier);
-  // fragmentBbox = this.components.get(OBC.BoundingBoxer);
-  // verDimensiones = false;
-  // fragMap: any;
-  // arrFragments: any;
-  // arrProperties: any;
-  // model: FragmentsGroup | undefined;
-  // items: any;
-  // dimensions!: OBCF.EdgeMeasurement;
-  // verVolumen = false;
-  // selectedFile: File | null = null;
-  // @ViewChild('fileInput', { static: false }) fileInput: any;
-
-  // async ngAfterViewInit() {
-  //   this.container = document.getElementById('container');
-  //   if (this.container) {
-  //     this.world.scene = new OBC.SimpleScene(this.components);
-  //     this.world.renderer = new OBCF.PostproductionRenderer(
-  //       this.components,
-  //       this.container
-  //     );
-  //     this.world.camera = new OBC.SimpleCamera(this.components);
-  //     this.components.init();
-  //     this.world.camera.controls.setLookAt(12, 6, 8, 0, 0, -10);
-  //     this.world.scene.setup();
-  //     const grids = this.components.get(OBC.Grids);
-  //     const grid = grids.create(this.world);
-  //     // this.highlighter.setup({ world: this.world });
-  //     // this.highlighter.zoomToSelection = true;
-
-  //     this.volumen.world = this.world;
-  //     this.volumen.enabled = this.verVolumen;
-  //     await this.fragmentIfcLoader.setup();
-  //     this.fragmentIfcLoader.settings.wasm = {
-  //       path: 'https://unpkg.com/web-ifc@0.0.66/',
-  //       absolute: true,
-  //     };
-  //     // this.loadIfc();
-  //     this.highlighter?.events['select']?.onHighlight?.add(async (data) => {
-  //       console.log('onHighlight');
-  //       this.prueba(data);
-  //       this.buscar(data);
-  //     });
-
-  //     this.highlighter?.events['select']?.onClear?.add(() => {
-  //       console.log('onClear');
-  //       this.volumen.deleteAll();
-  //     });
-  //     console.log('this.worl', this.world);
-  //   } else {
-  //     console.error('Contenedor HTML no encontrado.');
-  //   }
-  // }
-
-  // async ngOnInit() {
-  //   this.fragments?.onFragmentsLoaded.add(async (model) => {
-  //     this.prueba(model);
-  //   });
-  //   // this.highlighter?.events['select']?.onHighlight?.add(async (data) => {
-  //   //   console.log('onHighlight');
-  //   //   this.prueba(data);
-  //   //   this.buscar(data);
-  //   // });
-
-  //   // this.highlighter?.events['select']?.onClear?.add(() => {
-  //   //   console.log('onClear');
-  //   //   this.volumen.deleteAll();
-  //   // });
-  // }
-
-  // @HostListener('window:wheel', ['$event'])
-  // onWheel(event: WheelEvent): void {
-  //   if (this.world) {
-  //     console.log('worlss', this.world.camera.controls)
-  //   }
-  // }
-
-  // async prueba(map: any) {
-  //   if (this.verVolumen) {
-  //     const volume = await this.volumen.getVolumeFromFragments(map);
-  //     console.log('prueba', volume);
-  //   }
-  // }
-
-  // // async loadIfc() {
-
-  // //   const file = await fetch('assets/ifcs/SS-HH.ifc');
-  // //   const data = await file.arrayBuffer();
-  // //   const buffer = new Uint8Array(data);
-  // //   const model = await this.fragmentIfcLoader.load(buffer);
-
-  // //   const content = new TextDecoder().decode(buffer);
-  // //   if (!this.isValidUTF8(content)) {
-  // //     alert('El archivo contiene caracteres inválidos');
-  // //   }
-
-  // //   const lines = content.split('\n');
-  // //   const indexedLines: any[] = [];
-  // //   lines.forEach((line) => {
-  // //     const match = line.match(/^#(\d+)/);
-  // //     if (match) {
-  // //       const index = parseInt(match[1], 10);
-  // //       if (indexedLines.length <= index) {
-  // //         indexedLines.length = index + 1;
-  // //       }
-  // //       indexedLines[index] = line;
-  // //     }
-  // //   });
-  // //   this.crearTabla(this.fragments, indexedLines);
-  // //   model.matrixWorldAutoUpdate = true;
-  // //   model.matrixWorldNeedsUpdate = true;
-  // //   for (const child of model.children) {
-  // //     if (child instanceof THREE.Mesh) {
-  // //       this.world.meshes.add(child);
-  // //     }
-  // //   }
-  // //   if (this.world.scene.three) {
-  // //     await this.world.scene.three.add(model);
-  // //     const fragments: any = model.children;
-  // //     this.arrFragments = fragments;
-  // //     this.items = model.items;
-  // //     const properties: any = model.getLocalProperties();
-  // //     this.arrProperties = properties;
-  // //     this.model = model;
-  // //     this.dimensions = this.components.get(OBCF.EdgeMeasurement);
-  // //     this.dimensions.world = this.world;
-  // //     this.dimensions.enabled = this.verDimensiones;
-  // //     this.highlighter?.events['select']?.onHighlight?.add(async (data) => {
-  // //       this.prueba(data);
-  // //       this.buscar(data);
-  // //     });
-
-  // //     this.highlighter?.events['select']?.onClear?.add(() => {
-  // //       console.log('onClear');
-  // //       this.volumen.deleteAll();
-  // //     });
-  // //   }
-  // // }
-
-  // cargarDocumento(event: any) {
-  //   const file = event.target.files[0];
-  //   if (file) {
-  //     this.selectedFile = file;
-  //     this.processFile(file);
-  //   }
-  // }
-
-  // async processFile(file: File) {
-  //   const reader = new FileReader();
-  //   reader.onload = async (e) => {
-  //     console.log('file', file);
-
-  //     const buffer = new Uint8Array(e.target?.result as ArrayBuffer);
-  //     await this.processModelFromBuffer(buffer);
-  //   };
-
-  //   // Inicia la lectura del archivo
-  //   reader.readAsArrayBuffer(file);
-  // }
-
-  // async reset() {
-  //   this.container = document.getElementById('container');
-  //   if (this.container) {
-  //     // Elimina todos los elementos hijos del contenedor
-  //     while (this.container.firstChild) {
-  //       this.container.removeChild(this.container.firstChild);
-  //     }
-  //   }
-
-  //   this.components = new OBC.Components();
-  //   this.worlds = this.components.get(OBC.Worlds);
-
-  //   this.world = this.worlds.create<
-  //     OBC.SimpleScene,
-  //     OBC.SimpleCamera,
-  //     OBCF.PostproductionRenderer
-  //   >();
-  //   this.fragments = this.components.get(OBC.FragmentsManager);
-  //   this.fragmentIfcLoader = this.components.get(OBC.IfcLoader);
-  //   if (this.container) {
-  //     this.world.scene = new OBC.SimpleScene(this.components);
-  //     this.world.renderer = new OBCF.PostproductionRenderer(
-  //       this.components,
-  //       this.container
-  //     );
-  //     this.world.camera = new OBC.SimpleCamera(this.components);
-  //     this.components.init();
-  //     this.world.camera.controls.setLookAt(-1.0198054354798272, 3.545293038971296, 31.53745535058005, 0, 0, -10);
-  //     this.world.scene.setup();
-  //     const grids = this.components.get(OBC.Grids);
-  //     const grid = grids.create(this.world);
-
-  //     this.volumen.world = this.world;
-  //     this.volumen.enabled = this.verVolumen;
-  //     await this.fragmentIfcLoader.setup();
-  //     this.fragmentIfcLoader.settings.wasm = {
-  //       path: 'https://unpkg.com/web-ifc@0.0.66/',
-  //       absolute: true,
-  //     };
-  //   }
-  // }
-
-  // async processModelFromBuffer(buffer: Uint8Array) {
-  //   this.dataIFC = [];
-  //   this.filaSel = null;
-  //   await this.reset();
-
-  //   const model = await this.fragmentIfcLoader.load(buffer);
-  //   this.fragments = this.components.get(OBC.FragmentsManager);
-
-  //   console.log('model', model);
-  //   const content = new TextDecoder().decode(buffer);
-  //   if (!this.isValidUTF8(content)) {
-  //     alert('El archivo contiene caracteres inválidos');
-  //   }
-
-  //   const lines = content.split('\n');
-  //   const indexedLines: any[] = [];
-  //   lines.forEach((line) => {
-  //     const match = line.match(/^#(\d+)/);
-  //     if (match) {
-  //       const index = parseInt(match[1], 10);
-  //       if (indexedLines.length <= index) {
-  //         indexedLines.length = index + 1;
-  //       }
-  //       indexedLines[index] = line;
-  //     }
-  //   });
-  //   this.crearTabla(this.fragments, indexedLines);
-
-  //   model.matrixWorldAutoUpdate = true;
-  //   model.matrixWorldNeedsUpdate = true;
-
-  //   await this.world.scene.three.add(model);
-  //   if (this.world.scene.three) {
-  //     for (const child of model.children) {
-  //       if (child instanceof THREE.Mesh) {
-  //         this.world.meshes.add(child);
-  //       }
-  //     }
-
-  //     const fragments: any = model.children;
-  //     this.arrFragments = fragments;
-  //     this.items = model.items;
-  //     const properties: any = model.getLocalProperties();
-  //     this.arrProperties = properties;
-  //     this.model = model;
-  //     this.dimensions = this.components.get(OBCF.EdgeMeasurement);
-  //     this.dimensions.world = this.world;
-  //     this.dimensions.enabled = this.verDimensiones;
-  //     this.world.scene.setup();
-
-  //   }
-  //   console.log('worlss', this.world.camera.controls)
-  //   console.log('this.highlighter?.events', this.highlighter?.events)
-  // }
-
-  // verBarrasDimensiones() {
-  //   this.verDimensiones = !this.verDimensiones;
-  //   this.dimensions.enabled = this.verDimensiones;
-  //   console.log('this.verDimensiones', this.verDimensiones);
-  //   console.log('this.dimensions.enabled', this.dimensions.enabled);
-  //   if (this.dimensions.enabled) {
-  //     if (this.container) {
-  //       this.container.ondblclick = () => this.dimensions.create();
-  //       this.container.onclick = () => this.dimensions.deleteAll();
-  //     }
-  //   } else {
-  //     this.dimensions.deleteAll();
-  //   }
-  // }
-
-  // verVisualVolumenes() {
-  //   this.verVolumen = !this.verVolumen;
-  //   this.volumen.enabled = this.verVolumen;
-  //   console.log('this.verVolumen', this.verVolumen);
-  //   console.log('this.volumen.enabled', this.volumen.enabled);
-  //   if (this.container) {
-  //     this.container.onclick = () => this.volumen.deleteAll();
-  //   }
-  // }
-
-  // isValidUTF8(str: any) {
-  //   try {
-  //     new TextDecoder().decode(new TextEncoder().encode(str));
-  //     console.log('valido');
-  //     return true;
-  //   } catch (e) {
-  //     console.log('novalido');
-  //     return false; // Si lanza error, no es válido
-  //   }
-  // }
   constructor(private cdr: ChangeDetectorRef) {}
 
   async buscar(map: any) {
-    console.log('map', map)
     const array = Object.keys(map);
     const values = Object.values(map);
     const uniqueValues = [...new Set(values.flatMap((set: any) => [...set]))];
@@ -416,7 +111,6 @@ export class AppComponent implements OnInit, AfterViewInit {
         }
       }
     }
-    console.log('arr', arr);
     let volumen;
     if (this.verVolumen) {
       volumen = await this.volumen.getVolumeFromMeshes(arr);
@@ -497,7 +191,7 @@ export class AppComponent implements OnInit, AfterViewInit {
 
     const arrayCompleto: any[] = [];
     const propertiesArray: any = Object.values(properties);
-
+    console.log('propertiesArray', propertiesArray)
     propertiesArray.forEach((ele: any) => (arrayCompleto[ele.expressID] = ele));
     for (let i = 0; i < arrayCompleto.length; i++) {
       const element = arrayCompleto[i];
@@ -668,6 +362,7 @@ export class AppComponent implements OnInit, AfterViewInit {
       }
     });
     this.dataIFC = proyecto;
+    console.log('this.dataIFC', this.dataIFC)
     this.buscando = false;
   }
 
@@ -735,7 +430,7 @@ export class AppComponent implements OnInit, AfterViewInit {
         absolute: true,
       };
       const model = await fragmentIfcLoader.load(buffer);
-      this.crearTabla(buffer, model);
+      await this.crearTabla(buffer, model);
 
       for (const child of model.children) {
         if (child instanceof THREE.Mesh) {
@@ -766,12 +461,7 @@ export class AppComponent implements OnInit, AfterViewInit {
      
       this.highlighter = highlighter
       
-      // const indexer = components.get(OBC.IfcRelationsIndexer);
-      // const fragmentsManager = components.get(OBC.FragmentsManager);
-      // console.log('indexer', indexer)
-      // fragmentsManager.onFragmentsLoaded.add(async (model) => {
-      //   if (model.hasProperties) await indexer.process(model);
-      // });
+    
       this.components = components;
       this.volumen = components.get(OBCF.VolumeMeasurement);
       this.volumen.world = world;

@@ -203,7 +203,7 @@ h4 {
   .cstm {
     padding: 5px 10px;
     font-size: 13px;
-    height: 28px;
+    min-height: 28px;
   }
 
   .loader {

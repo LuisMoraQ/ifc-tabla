@@ -47,6 +47,7 @@ h4 {
     background-color: rgb(25, 25, 77);
     border-radius: 5px;
     font-size: 15px !important;
+    align-items: center !important;
 }
 
 .h-tablas-container {
@@ -261,4 +262,63 @@ h4 {
     display: flex;
     justify-content: center;
     align-items: center;
+  }
+
+
+  .loader2 {
+    width: 48px;
+    height: 48px;
+    display: inline-block;
+    position: relative;
+  }
+  .loader2::after,
+  .loader2::before {
+    content: '';  
+    box-sizing: border-box;
+    width: 48px;
+    height: 48px;
+    border: 2px solid #FFF;
+    position: absolute;
+    left: 0;
+    top: 0;
+    animation: scaleOut 2s ease-in-out infinite;
+  }
+  .loader2::after {
+    border-color: #FF3D00;
+    animation-delay: 1s;
+  }
+  
+  @keyframes scaleOut {
+    0% {
+      transform: scale(0);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+
+  .span-over {
+    font-size: 10px; 
+    white-space: nowrap; 
+    overflow: hidden; 
+    text-overflow: ellipsis;
+  }
+
+  .select-abso {
+    position: absolute !important;
+    right: 0;
+  }
+
+  .dropdown-item:hover {
+    background-color: #a3a4a5; 
+    color: white; 
+  }
+  
+  .selected {
+    background-color: #162980 !important; 
+    color: white !important; 
+  }
+
+  .btn.dropdown-toggle::before {
+    content: none; 
   }

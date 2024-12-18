@@ -12,7 +12,7 @@ import {
 import * as BUI from '@thatopen/ui';
 // import Stats from 'stats.js';
 import * as CUI from '@thatopen/ui-obc';
-
+import * as WEBIFC from 'web-ifc';
 import * as OBC from '@thatopen/components';
 import * as THREE from 'three'; // Importa THREE.js
 import * as OBCF from '@thatopen/components-front';
@@ -21,10 +21,12 @@ interface Elemento {
   informacion: any;
   active: boolean;
   nivel: any;
-  clase: string;
+  clase: number;
   claseTraducida: string;
   mostrar: boolean;
-  ind: number | null
+  ind: number | null;
+  visible: boolean;
+  propiedades : any
 }
 @Component({
   selector: 'app-root',
@@ -33,14 +35,15 @@ interface Elemento {
 })
 export class AppComponent implements OnInit, AfterViewInit {
   @ViewChildren('fila') filas!: QueryList<ElementRef>;
-
-  selectedFile: File | null = null;
+  tipoTabla = 0;
+  selectedFile!: File;
   infoSeleccionado: any = null;
   container: HTMLElement | null = null; // Iniciar como null
   mostrarNavbar = true;
   dataIFC: Elemento[] = [];
+  tablaGrupos: Elemento[] = [];
   filaSel: any = null;
-  arrayCompleto: any[] = [];
+  arrayCompleto: any;
   verDimensiones = false;
   verVolumen = false;
   dimensions!: OBCF.EdgeMeasurement;
@@ -53,9 +56,14 @@ export class AppComponent implements OnInit, AfterViewInit {
   items = [];
   tab: number = 0;
   buscando = false;
+  buscando2 = false;
   dataGeometrica: any = {};
   highlighter!: OBCF.Highlighter;
   noCargarData: boolean = false;
+  allTypes: any[] = [];
+  filteredEntities!: any[];
+  indexer!: OBC.IfcRelationsIndexer;
+  model: any;
 
   constructor(private cdr: ChangeDetectorRef) {}
 
@@ -72,7 +80,11 @@ export class AppComponent implements OnInit, AfterViewInit {
       const index = this.dataIFC.findIndex((ele) => ele.informacion === data);
       if (index !== -1) {
         const elemento = this.dataIFC[index];
-        this.seleccionRow(elemento, index, true);
+        if (!this.noCargarData) {
+          this.seleccionRow(elemento, index, true);
+        } else {
+          this.noCargarData = false;
+        }
       }
     } else {
       this.dataGeometrica = {};
@@ -90,7 +102,7 @@ export class AppComponent implements OnInit, AfterViewInit {
       const row: any = this.arrFragments.find(
         (ele: any) => ele.uuid === element
       );
-
+      // console.log('fragmentBbox',fragmentBbox)
       if (row) {
         arr.push(row);
         if (row.geometry && row.geometry.boundingBox) {
@@ -111,13 +123,14 @@ export class AppComponent implements OnInit, AfterViewInit {
         }
       }
     }
+
+   
+   
     let volumen;
     if (this.verVolumen) {
       volumen = await this.volumen.getVolumeFromMeshes(arr);
-      // console.log('this.volumen', this.volumen);
     }
 
-    // Calcula las diferencias y redondea
     const x = Number((mayorx - menorx).toFixed(2));
     const y = Number((mayory - menory).toFixed(2));
     const z = Number((mayorz - menorz).toFixed(2));
@@ -129,7 +142,6 @@ export class AppComponent implements OnInit, AfterViewInit {
     const AreaMaxima = Math.max(a, b, c);
     const Thickness = Math.min(x, y, z);
     // console.log(x, y, z);
-
     this.dataGeometrica = {
       boundingboxlength: x,
       boundingboxwidth: y,
@@ -139,6 +151,7 @@ export class AppComponent implements OnInit, AfterViewInit {
       AreaMaxima: AreaMaxima,
       Thickness: Thickness,
     };
+    this.noCargarData = false;
   }
 
   async antOcultos(index: number) {
@@ -156,214 +169,15 @@ export class AppComponent implements OnInit, AfterViewInit {
       } else {
       }
     }
-    for (let i = index+ 1; i < this.dataIFC.length; i++) {
+    for (let i = index + 1; i < this.dataIFC.length; i++) {
       const element = this.dataIFC[i];
       if (element.nivel == seleccionado.nivel) {
         this.dataIFC[i].mostrar = true;
       } else if (element.nivel < seleccionado.nivel) {
-         break
+        break;
       }
     }
     this.cdr.detectChanges();
-  }
-
-  async crearTabla(buffer: any, group: any) {
-    const content = new TextDecoder().decode(buffer);
-    const lines = content.split('\n');
-    const indexedLines: any[] = [];
-    lines.forEach((line) => {
-      const match = line.match(/^#(\d+)/);
-      if (match) {
-        const index = parseInt(match[1], 10);
-        if (indexedLines.length <= index) {
-          indexedLines.length = index + 1;
-          
-        }
-        indexedLines[index] = line;
-      }
-    });
-    this.arrayCompleto = [];
-    this.dataIFC = [];
-    let proyecto: Elemento[] = [];
-    this.items = group.items;
-    this.arrFragments = group.children;
-    const properties = group.getLocalProperties();
-
-    const arrayCompleto: any[] = [];
-    const propertiesArray: any = Object.values(properties);
-    console.log('propertiesArray', propertiesArray)
-    propertiesArray.forEach((ele: any) => (arrayCompleto[ele.expressID] = ele));
-    for (let i = 0; i < arrayCompleto.length; i++) {
-      const element = arrayCompleto[i];
-      if (!element) {
-        arrayCompleto[i] = indexedLines[i];
-      }
-    }
-    this.arrayCompleto = arrayCompleto;
-    const project: Elemento = {
-      active: true,
-      clase: 'IfcProject',
-      claseTraducida: 'Proyecto',
-      informacion: propertiesArray.find(
-        (ele: any) => ele.constructor.name == 'IfcProject'
-      ),
-      mostrar: true,
-      nivel: 0,
-      ind: null
-    };
-    proyecto.push(project);
-    const site: Elemento = {
-      active: true,
-      clase: 'IfcSite',
-      claseTraducida: 'Sitio',
-      informacion: propertiesArray.find(
-        (ele: any) => ele.constructor.name == 'IfcSite'
-      ),
-      mostrar: true,
-      nivel: 1,
-      ind: null
-    };
-    proyecto.push(site);
-    const building: Elemento = {
-      active: true,
-      clase: 'IfcBuilding',
-      claseTraducida: 'Edificio',
-      informacion: propertiesArray.find(
-        (ele: any) => ele.constructor.name == 'IfcBuilding'
-      ),
-      mostrar: true,
-      nivel: 2,
-      ind: null
-    };
-    proyecto.push(building);
-    const contenedores: any[] = propertiesArray.filter(
-      (ele: any) => ele.constructor.name == 'IfcRelContainedInSpatialStructure'
-    );
-    for (const element of contenedores) {
-      let elementos: any = [];
-      let informacion: any = null;
-      if (element.RelatedElements && element.RelatedElements.length) {
-        let elefiltrado: any[] = [];
-        element.RelatedElements.map((ele: any) => {
-          const filtrados = propertiesArray
-            .filter((data: any) => data.expressID === ele.value)
-            .map((data: any) => {
-              return {
-                active: true,
-                clase: data.constructor.name,
-                informacion: data,
-                nivel: 5,
-                mostrar: false,
-                ind: null
-              };
-            });
-          elefiltrado = elefiltrado.concat(filtrados);
-        });
-        elefiltrado.sort((a: any, b: any) => {
-          if (a.clase < b.clase) {
-            return -1;
-          }
-          if (a.clase > b.clase) {
-            return 1;
-          }
-          return 0;
-        });
-        const result: any = [];
-        let currentConstructorName: any = null;
-        elefiltrado.forEach((item: any) => {
-          if (item.clase !== currentConstructorName) {
-            const ob: Elemento = {
-              active: true,
-              clase: item.clase,
-              informacion: '',
-              nivel: 4,
-              claseTraducida: '',
-              mostrar: false,
-              ind: null
-            };
-            result.push(ob);
-            currentConstructorName = item.clase;
-          }
-          result.push(item);
-        });
-        elementos = elementos.concat(result);
-      }
-      if (element.RelatingStructure) {
-        informacion = arrayCompleto[element.RelatingStructure.value];
-      }
-      const obj: Elemento = {
-        active: true,
-        informacion: informacion,
-        clase: informacion.constructor.name,
-        nivel: 3,
-        claseTraducida: '',
-        mostrar: true,
-        ind: null
-      };
-      proyecto.push(obj);
-      proyecto = proyecto.concat(elementos);
-    }
-    const diccionarioTraduccion: { [key: string]: string } = {
-      IfcWall: 'Pared',
-      IfcBuildingStorey: 'Piso de Edificio',
-      IfcDoor: 'Puerta',
-      IfcColumn: 'Pilar',
-      IfcWindow: 'Ventana',
-      IfcRoof: 'Cubierta',
-      IfcSlab: 'Forjado',
-      IfcBeam: 'Viga',
-      IfcSpace: 'Espacio',
-      IfcWallStandardCase: 'Muro Estándar',
-      IfcBuildingElementProxy: 'Elemento constructivo indeterminado(Proxy)',
-      IfcCurtainWall: 'Muro Entramado',
-      IfcFlowTerminal: 'Terminal de Flujo',
-      IfcFurnishingElement: 'Elemento de Mobiliario',
-      IfcGrid: 'Eje',
-      IfcStair: 'Escalera',
-      IfcMaterialList: 'Lista de Materiales',
-      IfcCovering: 'Revestimiento',
-    };
-    const diccionarioTraduccion2: { [key: string]: string } = {
-      IfcWall: 'Pared',
-      IfcBuildingStorey: 'Piso de Edificio',
-      IfcDoor: 'Puertas',
-      IfcColumn: 'Pilares',
-      IfcWindow: 'Ventanas',
-      IfcRoof: 'Cubiertas',
-      IfcSlab: 'Cimientos',
-      IfcBeam: 'Vigas',
-      IfcSpace: 'Espacios',
-      IfcWallStandardCase: 'Muros',
-      IfcBuildingElementProxy:
-        'Elementos constructivos indeterminados(Proxies)',
-      IfcCurtainWall: 'Muros Entramados',
-      IfcFlowTerminal: 'Otros',
-      IfcFurnishingElement: 'Muebles',
-      IfcGrid: 'Rejillas',
-      IfcStair: 'Escaleras',
-      IfcMaterialList: 'Lista de Materiales',
-      IfcCovering: 'Revestimientos',
-    };
-
-    proyecto.forEach((elemento, index) => {
-      elemento.ind = index
-      if (elemento.nivel > 2) {
-        const claseOriginal = elemento.clase;
-        let claseTraducida;
-        if (elemento.nivel !== 4) {
-          claseTraducida =
-            diccionarioTraduccion[claseOriginal] || elemento.clase;
-        } else {
-          claseTraducida =
-            diccionarioTraduccion2[claseOriginal] || elemento.clase;
-        }
-        elemento.claseTraducida = claseTraducida;
-        
-      }
-    });
-    this.dataIFC = proyecto;
-    console.log('this.dataIFC', this.dataIFC)
-    this.buscando = false;
   }
 
   ngAfterViewInit() {
@@ -375,6 +189,7 @@ export class AppComponent implements OnInit, AfterViewInit {
   cargarDocumento(event: any) {
     const file = event.target.files[0];
     if (file) {
+      this.buscando2 = true;
       this.selectedFile = file;
       this.processFile(file);
     }
@@ -391,8 +206,7 @@ export class AppComponent implements OnInit, AfterViewInit {
 
   async processModelFromBuffer(buffer: Uint8Array) {
     if (this.container) {
-      this.dataIFC = [];
-      this.buscando = true;
+      this.limpiarVariables();
       if (this.container) {
         while (this.container.firstChild) {
           this.container.removeChild(this.container.firstChild);
@@ -429,9 +243,30 @@ export class AppComponent implements OnInit, AfterViewInit {
         path: 'https://unpkg.com/web-ifc@0.0.66/',
         absolute: true,
       };
-      const model = await fragmentIfcLoader.load(buffer);
-      await this.crearTabla(buffer, model);
+      const model: any = await fragmentIfcLoader.load(buffer);
+      this.buscando2 = false;
+      this.buscando = true;
+      const indexer = components.get(OBC.IfcRelationsIndexer);
+      if (model.hasProperties) {
+        const arraycompleto: any = model.getLocalProperties();
+        await indexer.process(model);
+        const encontrado: any = await Object.values(arraycompleto).find(
+          (ele: any) => ele.type == 103090709
+        );
+        const lista = await indexer.getEntityChildren(
+          model,
+          encontrado.expressID
+        );
+        if (arraycompleto !== undefined && lista) {
+          let filteredEntities: any[] = [];
+          lista.forEach((ele) => filteredEntities.push(arraycompleto[ele]));
+          this.arrayCompleto = arraycompleto;
+          this.filteredEntities = filteredEntities;
+          this.crearTabla2(filteredEntities, arraycompleto, indexer, model);
+        }
+      }
 
+      // this.crearTabla(buffer, model);
       for (const child of model.children) {
         if (child instanceof THREE.Mesh) {
           world.meshes.add(child);
@@ -443,25 +278,24 @@ export class AppComponent implements OnInit, AfterViewInit {
       highlighter.clear();
       highlighter.dispose();
       highlighter.setup({ world: world });
-      highlighter.onBeforeUpdate
+      highlighter.onBeforeUpdate;
       const fragments = model.children;
+      this.items = model.items;
+      this.arrFragments = model.children;
+
+      this.indexer = indexer;
+      this.model = model;
 
       highlighter.events['select']?.onHighlight.add(async (fragmentIdMap) => {
-        if (this.noCargarData) {
-          this.noCargarData = false
-        } else {
-          this.buscar(fragmentIdMap);
-        }
-        
+        this.buscar(fragmentIdMap);
       });
       highlighter.events['select']?.onClear.add(() => {
         this.volumen.deleteAll();
         this.dimensions.deleteAll();
       });
-     
-      this.highlighter = highlighter
-      
-    
+
+      this.highlighter = highlighter;
+
       this.components = components;
       this.volumen = components.get(OBCF.VolumeMeasurement);
       this.volumen.world = world;
@@ -469,7 +303,194 @@ export class AppComponent implements OnInit, AfterViewInit {
       this.dimensions = components.get(OBCF.EdgeMeasurement);
       this.dimensions.world = world;
       this.dimensions.enabled = false;
+      highlighter.zoomToSelection = true;
+
+
+    
+      // const classifier = components.get(OBC.Classifier);
+
+      // await classifier.bySpatialStructure(model, {
+      //   isolate: new Set([WEBIFC.IFCBUILDINGSTOREY]),
+      // });
+
+      // const indexer = components.get(OBC.IfcRelationsIndexer);
+      // console.log('model', model)
+      // if (model.hasProperties) {
+      //   const arraycompleto = model.getLocalProperties();
+      //   await indexer.process(model);
+      //   const lista = await indexer.getEntityChildren(model, 1);
+      //   if (arraycompleto !== undefined && lista) {
+      //     console.log('arraycompleto', arraycompleto)
+      //     console.log('lista', lista)
+      //     let filteredEntities:any[] = []
+      //     lista.forEach(ele => filteredEntities.push(arraycompleto[ele]))
+      //     console.log('filteredEntities', filteredEntities)
+
+      //   }
+      //   console.log('indexer', indexer);
+      // }
+      // const classifier = components.get(OBC.Classifier);
+      // classifier.byEntity(model);
+      // classifier.byModel(model.uuid, model);
+      // classifier.byPredefinedType(model);
+      // console.log('classifier', classifier);
     }
+  }
+
+  async crearTabla2(
+    filtrados: any,
+    arrayCompleto: any,
+    indexer: any,
+    model: any
+  ) {
+    let proyecto: any[] = [];
+    this.allTypes = [];
+    const superiores = filtrados.filter(
+      (ele: any) =>
+        ele.type == 103090709 ||
+        ele.type == 4097777520 ||
+        ele.type == 4031249490
+    );
+
+    if (superiores.length) {
+      superiores.forEach((ele: any, index: number) => {
+        const dataPiso: Elemento = {
+          active: false,
+          clase: ele.type,
+          claseTraducida: '',
+          ind: null,
+          informacion: ele,
+          mostrar: true,
+          nivel: index,
+          visible: true,
+          propiedades : []
+        };
+        proyecto.push(dataPiso);
+      });
+    }
+    const pisos = filtrados.filter((ele: any) => ele.type == 3124254112);
+    for (const element of pisos) {
+      const dataPiso: Elemento = {
+        active: true,
+        clase: element.type,
+        claseTraducida: '',
+        ind: null,
+        informacion: element,
+        mostrar: true,
+        nivel: 3,
+        visible: true,
+        propiedades : []
+      };
+      proyecto.push(dataPiso);
+      let piso: any[] = [];
+      const encontrados = indexer.getEntityChildren(model, element.expressID);
+      encontrados.forEach((ele: any) => {
+        piso.push(arrayCompleto[ele]);
+      });
+      let groupedData: any = {};
+      let result: any[] = [];
+      if (piso.length) {
+        this.allTypes = this.allTypes.concat(piso.slice(1));
+        piso.forEach((item, index) => {
+          if (index > 0) {
+            if (!groupedData[item.type]) {
+              groupedData[item.type] = [];
+            }
+            const obj: Elemento = {
+              active: false,
+              clase: item.type,
+              claseTraducida: '',
+              ind: null,
+              informacion: item,
+              mostrar: false,
+              nivel: 5,
+              visible: true,
+              propiedades : []
+            };
+            groupedData[item.type].push(obj);
+          }
+        });
+        for (const type in groupedData) {
+          const obj: Elemento = {
+            active: false,
+            clase: Number(type),
+            claseTraducida: '',
+            ind: null,
+            informacion: null,
+            mostrar: false,
+            nivel: 4,
+            visible: true,
+            propiedades: []
+          };
+          result.push(obj);
+          result.push(...groupedData[type]);
+        }
+      }
+      proyecto = proyecto.concat(result);
+    }
+
+    const diccionarioType: { [key: number]: string[] } = {
+      103090709: ['IfcProject', 'Proyecto', 'Proyecto'],
+      4097777520: ['IfcSite', 'Sitio', 'Sitio'],
+      4031249490: ['IfcBuilding', 'Edificio', 'Edificio'],
+      3124254112: ['IfcBuildingStorey', 'Piso de Edificio', 'Piso de Edificio'],
+      1674181508: ['IfcAnnotation', 'Anotacion', 'Anotaciones'],
+      3009204131: ['IfcGrid', 'Ejes', 'Rejillas'],
+      843113511: ['IfcColumn', 'Pilar', 'Pilares'],
+      1529196076: ['IfcSlab', 'Forjado', 'Losas'],
+      3495092785: ['IfcCurtainWall', 'Muro entramado', 'Muros Entramados'],
+      3171933400: ['IfcPlate', 'Panel', 'Paneles'],
+      2223149337: [
+        'IfcFlowTerminal',
+        'Terminal de Flujo',
+        'Terminales de flujos',
+      ],
+      263784265: ['IfcFurnishingElement', 'Elemento de Mobiliario', 'Muebles'],
+      3512223829: ['IfcWallStandardCase', 'Muro Estandar', 'Muros Estandar'],
+      395920057: ['IfcDoor', 'Puerta', 'Puertas'],
+      2391406946: ['IfcWall', 'Pared', 'Paredes'],
+      753842376: ['IfcBeam', 'Viga', 'Vigas'],
+      1095909175: [
+        'IfcBuildingElementProxy',
+        'Elemento constructivo indeterminado(Proxy)',
+        'Elementos constructivos indeterminados(Proxies)',
+      ],
+      331165859: ['IfcStair', 'Escalera', 'Escaleras'],
+      4252922144: [
+        'IfcStairFlight',
+        'Tramo de escalera',
+        'Tramos de escaleras',
+      ],
+      3304561284: ['IfcWindow', 'Ventana', 'Ventanas'],
+      2262370178: ['IfcRailing', 'Pasamanos', 'Barandillas'],
+      1973544240: ['IfcCovering', 'Revestimiento', 'Revestimientos'],
+      2016517767: ['IfcRoof', 'Cubierta', 'Cubiertas'],
+    };
+
+    proyecto.forEach((ele, index) => {
+      ele.ind = index;
+      if (diccionarioType.hasOwnProperty(ele.clase)) {
+        if (ele.nivel <= 4) {
+          ele.claseTraducida = diccionarioType[ele.clase][2]
+            ? diccionarioType[ele.clase][2]
+            : ele.clase;
+        } else {
+          ele.claseTraducida = diccionarioType[ele.clase][1]
+            ? diccionarioType[ele.clase][1]
+            : ele.clase;
+        }
+        ele.clase = diccionarioType[ele.clase][0]
+          ? diccionarioType[ele.clase][0]
+          : ele.clase;
+      } else {
+        console.warn('no existe', ele);
+
+        ele.claseTraducida = ele.clase;
+        ele.clase = ele.clase;
+      }
+    });
+    this.buscando = false;
+    this.dataIFC = proyecto;
   }
 
   verBarrasDimensiones() {
@@ -494,7 +515,11 @@ export class AppComponent implements OnInit, AfterViewInit {
   }
 
   async seleccionRow(row: Elemento, index: number, anteriores = false) {
+    this.infoSeleccionado = row;
+    this.dataGeometrica = {};
     if (index == this.filaSel && !anteriores) {
+      this.nivel = '';
+
       return;
     }
     let proyecto = '';
@@ -508,19 +533,58 @@ export class AppComponent implements OnInit, AfterViewInit {
         nivel = element.informacion?.Name?.value;
       }
     }
-    
+
     this.dataIFC[index].mostrar = true;
     this.guid = proyecto;
     this.nivel = nivel;
     this.filaSel = row.ind;
-    this.infoSeleccionado = row;
-    const fragmentMap = await this.busquedaFragmentos(row.informacion.expressID)
-    if (Object.keys(fragmentMap).length !== 0) {
-     
-      this.noCargarData = true
-      this.highlighter.highlightByID("select", fragmentMap, true)
-    }
     
+    if (row.informacion) {
+     
+      const fragmentMap = await this.busquedaFragmentos(
+        row.informacion.expressID
+      );
+      if (Object.keys(fragmentMap).length !== 0) {
+        this.noCargarData = true;
+
+        this.highlighter.highlightByID('select', fragmentMap, true);
+      }
+    }
+    // console.log('row', row.informacion);
+    if (row.informacion && !row.propiedades.length && row.nivel > 4) {
+      let propiedades: any[] = [];
+      const psets = await this.indexer.getEntityRelations(
+        this.model,
+        row.informacion.expressID,
+        'IsDefinedBy'
+      );
+      // console.log('psets', psets)
+      if (psets) {
+        // for (const element of psets) {
+        //  const a = this.arrayCompleto[element]
+         
+        //  console.log('a', a)
+         
+        
+        // //  propiedades.push(a)
+        // }
+        for (const expressID of psets) {
+          // You can get the pset attributes like this
+          const pset = await this.model.getProperties(expressID);
+          // console.log(pset);
+          // You can get the pset props like this or iterate over pset.HasProperties yourself
+          await OBC.IfcPropertiesUtils.getPsetProps(
+            this.model,
+            expressID,
+            async (propExpressID) => {
+              const prop = await this.model.getProperties(propExpressID);
+              propiedades.push(prop)
+            },
+          );
+        }
+        console.log('propiedades', propiedades)
+      }
+    }
     if (anteriores) {
       await this.antOcultos(index);
       setTimeout(() => {
@@ -538,18 +602,18 @@ export class AppComponent implements OnInit, AfterViewInit {
     }
   }
 
-  async busquedaFragmentos(idExpress:any) {
-    const encontrados:any[] = this.items.filter((ele:any) => 
+  async busquedaFragmentos(idExpress: any) {
+    const encontrados: any[] = this.items.filter((ele: any) =>
       ele.ids.has(idExpress)
     );
-    let fragmentIdMap: any = {}
+    let fragmentIdMap: any = {};
     if (encontrados.length) {
       for (const element of encontrados) {
-        fragmentIdMap[element.id] = element.ids
+        fragmentIdMap[element.id] = element.ids;
       }
     }
     // console.log('fragmentIdMap', fragmentIdMap)
-    return fragmentIdMap
+    return fragmentIdMap;
   }
 
   async parseIfcLine(line: string) {
@@ -605,5 +669,252 @@ export class AppComponent implements OnInit, AfterViewInit {
 
   trackByFn(index: number, item: any): any {
     return item.id; // O cualquier propiedad única que tenga cada fila
+  }
+
+  async hiderRow(row: any, event: any, index: number) {
+    const hider = this.components.get(OBC.Hider);
+    let fragmentMap: any;
+    if (row.nivel > 4) {
+      this.dataIFC[row.ind].visible = event.target.checked;
+      fragmentMap = await this.busquedaFragmentos(row.informacion.expressID);
+    } else {
+      const concatenado: any = {};
+      for (let i = index + 1; i < this.dataIFC.length; i++) {
+        const element = this.dataIFC[i];
+        if (element.nivel > row.nivel) {
+          this.dataIFC[i].visible = event.target.checked;
+          if (element.informacion) {
+            fragmentMap = await this.busquedaFragmentos(
+              element.informacion.expressID
+            );
+            if (fragmentMap) {
+              Object.entries(fragmentMap).forEach((uuid: any) => {
+                concatenado[uuid[0]] = uuid[1];
+              });
+            }
+          }
+        } else {
+          break;
+        }
+      }
+      fragmentMap = concatenado;
+    }
+    hider.set(event.target.checked, fragmentMap);
+  }
+
+  cambioTabla() {
+    this.restaurarGrafico();
+    if (this.tipoTabla == 1) {
+      this.buscando = true;
+      const diccionarioType: { [key: number]: string[] } = {
+        103090709: ['IfcProject', 'Proyecto', 'Proyecto'],
+        4097777520: ['IfcSite', 'Sitio', 'Sitio'],
+        4031249490: ['IfcBuilding', 'Edificio', 'Edificio'],
+        3124254112: [
+          'IfcBuildingStorey',
+          'Piso de Edificio',
+          'Piso de Edificio',
+        ],
+        1674181508: ['IfcAnnotation', 'Anotacion', 'Anotaciones'],
+        3009204131: ['IfcGrid', 'Ejes', 'Rejillas'],
+        843113511: ['IfcColumn', 'Pilar', 'Pilares'],
+        1529196076: ['IfcSlab', 'Forjado', 'Losas'],
+        3495092785: ['IfcCurtainWall', 'Muro entramado', 'Muros Entramados'],
+        3171933400: ['IfcPlate', 'Panel', 'Paneles'],
+        2223149337: [
+          'IfcFlowTerminal',
+          'Terminal de Flujo',
+          'Terminales de flujos',
+        ],
+        263784265: [
+          'IfcFurnishingElement',
+          'Elemento de Mobiliario',
+          'Muebles',
+        ],
+        3512223829: ['IfcWallStandardCase', 'Muro Estandar', 'Muros Estandar'],
+        395920057: ['IfcDoor', 'Puerta', 'Puertas'],
+        2391406946: ['IfcWall', 'Pared', 'Paredes'],
+        753842376: ['IfcBeam', 'Viga', 'Vigas'],
+        1095909175: [
+          'IfcBuildingElementProxy',
+          'Elemento constructivo indeterminado(Proxy)',
+          'Elementos constructivos indeterminados(Proxies)',
+        ],
+        331165859: ['IfcStair', 'Escalera', 'Escaleras'],
+        4252922144: ['IfcStairFlight','Tramo de escalera', 'Tramos de escaleras'],
+        3304561284: ['IfcWindow', 'Ventana', 'Ventanas'],
+        2262370178: ['IfcRailing', 'Pasamanos', 'Barandillas'],
+        1973544240: ['IfcCovering', 'Revestimiento', 'Revestimientos'],
+        2016517767: ['IfcRoof', 'Cubierta', 'Cubiertas'],
+      };
+      let tabla: any[] = [];
+      const groupedItems = this.allTypes.reduce((acc, item) => {
+        if (!acc[item.type]) {
+          acc[item.type] = [];
+        }
+        acc[item.type].push(item);
+        return acc;
+      }, {});
+      let i = 0;
+      for (let ele in groupedItems) {
+        const clase = diccionarioType[Number(ele)];
+        const arr = groupedItems[Number(ele)];
+        if (arr.length) {
+          const obj: Elemento = {
+            active: true,
+            clase: Number(ele),
+            claseTraducida: clase[2],
+            ind: i,
+            informacion: '',
+            mostrar: true,
+            nivel: 4,
+            visible: true,
+            propiedades : []
+          };
+          tabla.push(obj);
+          i++;
+          for (const element of arr) {
+            const obj2: Elemento = {
+              active: true,
+              clase: Number(ele),
+              claseTraducida: clase[1],
+              ind: i,
+              informacion: element,
+              mostrar: false,
+              nivel: 5,
+              visible: false,
+              propiedades:[]
+            };
+            tabla.push(obj2);
+            i++;
+          }
+        }
+      }
+      this.tablaGrupos = tabla;
+      this.buscando = false;
+    }
+  }
+
+  seleccionRow2(row: Elemento, index: number) {}
+
+  toggleRow2(index: number, accion: boolean) {
+    const seleccionado = this.tablaGrupos[index];
+    this.tablaGrupos[index].active = !this.tablaGrupos[index].active;
+
+    for (let i = index + 1; i < this.tablaGrupos.length; i++) {
+      let element = this.tablaGrupos[i];
+      if (seleccionado.nivel < element.nivel) {
+        if (!accion) {
+          element.active = accion;
+          element.mostrar = accion;
+        } else {
+          if (seleccionado.nivel + 1 == element.nivel) {
+            element.active = accion;
+            element.mostrar = accion;
+          } else {
+            element.active = false;
+          }
+        }
+      } else {
+        break;
+      }
+    }
+  }
+
+  async restaurarGrafico() {
+    const hider = this.components.get(OBC.Hider);
+    const concatenado: any = {};
+    let filtrados: any = [];
+    if (!this.tipoTabla) {
+      this.tablaGrupos.map((ele, ind) => {
+        if (!ele.visible && ele.nivel > 4) {
+          filtrados.push(ele);
+        }
+        this.tablaGrupos[ind].visible = true;
+      });
+    } else {
+      this.dataIFC.map((ele, ind) => {
+        if (!ele.visible && ele.nivel > 4) {
+          filtrados.push(ele);
+        }
+        this.dataIFC[ind].visible = true;
+      });
+    }
+    await filtrados.map(async (element: any) => {
+      if (element.informacion) {
+        const fragmentMap = await this.busquedaFragmentos(
+          element.informacion.expressID
+        );
+        if (fragmentMap) {
+          Object.entries(fragmentMap).map((uuid: any) => {
+            concatenado[uuid[0]] = uuid[1];
+          });
+        }
+      }
+    });
+    if (Object.keys(concatenado).length > 0) {
+      hider.set(true, concatenado);
+    }
+  }
+
+  async hiderRow2(row: any, event: any, index: number) {
+    const hider = this.components.get(OBC.Hider);
+    const concatenado: any = {};
+    if (row == null) {
+      await this.tablaGrupos.map(async (ele, ind) => {
+        if (ele.nivel > 4) {
+          if (ele.informacion) {
+            const fragmentMap = await this.busquedaFragmentos(
+              ele.informacion.expressID
+            );
+            if (fragmentMap) {
+              Object.entries(fragmentMap).map((uuid: any) => {
+                concatenado[uuid[0]] = uuid[1];
+              });
+            }
+          }
+        }
+        this.tablaGrupos[ind].visible = event.target.checked;
+      });
+    } else {
+      for (let i = index + 1; i < this.tablaGrupos.length; i++) {
+        const element = this.tablaGrupos[i];
+        if (element.nivel > row.nivel) {
+          if (element.informacion) {
+            const fragmentMap = await this.busquedaFragmentos(
+              element.informacion.expressID
+            );
+            if (fragmentMap) {
+              Object.entries(fragmentMap).map((uuid: any) => {
+                concatenado[uuid[0]] = uuid[1];
+              });
+            }
+          }
+          this.tablaGrupos[i].visible = event.target.checked;
+        } else {
+          break;
+        }
+      }
+    }
+    if (Object.keys(concatenado).length > 0) {
+      hider.set(event.target.checked, concatenado);
+    }
+  }
+
+  limpiarVariables() {
+    this.dataIFC = [];
+    this.tablaGrupos = [];
+    this.allTypes = [];
+    this.infoSeleccionado = null;
+    this.filaSel = null;
+    this.arrayCompleto = [];
+    this.verDimensiones = false;
+    this.verVolumen = false;
+    this.guid = '';
+    this.nivel = '';
+    this.arrFragments = [];
+    this.items = [];
+    this.tab = 0;
+    this.dataGeometrica = {};
   }
 }

@@ -3,7 +3,10 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-  production: false
+  production: false,
+  // apiUrl: 'http://192.168.18.116/BackPresu',
+  apiUrl: 'http://192.168.18.116/BackPresu',
+  key: 'sipa@gmail.com'
 };
 
 /*

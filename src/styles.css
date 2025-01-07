@@ -11,6 +11,7 @@ bim-grid {
 table thead {
     font-size: 10px;
     background-color: #3f3c3c !important;
+    color: aliceblue !important;
 }
 
 table tbody {
@@ -28,6 +29,13 @@ table tbody tr td {
 .notdata {
     text-align: center !important;
     color: coral !important;
+}
+
+.recortatextlinea {
+  width: 100% ;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
 }
 
 .btn-bim {
@@ -70,3 +78,13 @@ table tbody tr td {
   
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+
+.error-snack-bar {
+  background-color: red !important;
+  color: white !important;
+}
+
+.form-switch .form-check-input {
+  border-color: #ababab !important;
+}

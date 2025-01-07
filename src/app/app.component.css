@@ -2,11 +2,21 @@
 
 .container-tabla {
     position: absolute;
-    width: 28rem;
+    width: 32rem;
     height: 100%;
-    background-color: black;
+    background-color: #d9d6d6;
     top: 0;
-    color: white;
+    color: black;
+}
+
+.barra-acciones {
+  height: 30px;
+  width: calc(100vw - 32rem);
+  background-color: #d9d6d6;
+  position: absolute;
+  top: 0;
+  right: 0;
+  border-left:1px solid #646363
 }
 
 h4 {
@@ -19,13 +29,13 @@ h4 {
     position: absolute !important;
     margin-left: 0;
     top: 0;
-    margin-top: 0.5rem;
+    margin-top: 30px;
 }
 .togle-btn-2 {
     position: absolute !important;
-    margin-left: 28rem;
+    margin-left: 32rem;
     top: 0;
-    margin-top: 0.5rem;
+    margin-top: 30px;
 }
 .b-containers {
     border-bottom: 1px solid white !important;
@@ -34,8 +44,9 @@ h4 {
 }
 
 .btn-custom-togle {
-    background-color: black !important;
+    background-color: aliceblue !important;
     border-color: #5d5a5a !important;
+    color: rgb(48, 48, 48) !important;
     /* border-radius: 0 !important; */
 }
 
@@ -48,16 +59,18 @@ h4 {
     border-radius: 5px;
     font-size: 15px !important;
     align-items: center !important;
+    color: aliceblue !important;
 }
 
 .h-tablas-container {
-    height: calc(100vh - 100px);
+    height: calc(100vh - 80px);
     width: 100%;
 }
 
 .head-sticky{
     position: sticky;
     top: -0.1px;
+    z-index: 1;
 }
 
 /* ::-webkit-scrollbar {
@@ -111,7 +124,7 @@ h4 {
   }
 
   .highlight-row {
-    background-color: rgb(137 125 53) !important;
+    background-color: #9bc622!important;
   }
 
   .btn-mini2 {
@@ -120,7 +133,7 @@ h4 {
     padding-left: 0.5rem !important; 
     padding-right: 0.5rem !important; 
     font-size: 0.55rem !important;
-    color: white !important;
+    color: rgb(7, 7, 7) !important;
   }
 
   .btn.active {
@@ -149,7 +162,7 @@ h4 {
     cursor: pointer;
     background-color: #f1f1f1;
     color: #595c59;
-    border: 1px solid #ccc;
+    border: 1px solid #a7a7a7;
     text-align: center;
     width: 33.33%;
     transition: background-color 0.3s;
@@ -161,12 +174,12 @@ h4 {
   
   .tab-title.active {
     background-color: rgb(25, 25, 77);
-    color: white;
+    color: rgb(233, 233, 233);
     font-weight: bold;
   }
   
   .tab-content {
-    padding: 20px 0px;
+    padding: 5px 0px;
     border-top: 1px solid #ccc;
   }
   
@@ -212,7 +225,7 @@ h4 {
     height: 48px;
     display: inline-block;
     position: relative;
-    border: 2px solid #FFF;
+    border: 2px solid #0c093b;
     box-sizing: border-box;
     animation: rotation 2s linear infinite;
   }
@@ -235,7 +248,7 @@ h4 {
   .loader::before {
     width: 28px;
     height: 28px;
-    border-color: #FFF;
+    border-color: #055a0c;
     box-sizing: border-box;
     animation: rotation 1s linear infinite;
   }
@@ -320,5 +333,30 @@ h4 {
   }
 
   .btn.dropdown-toggle::before {
-    content: none; 
+    content: none !important; 
+  }
+  .btn.dropdown-toggle::after {
+    display: none !important; 
+  }
+  .list-group {
+    flex-direction : unset !important;
+    border-radius: unset !important;
+  }
+
+  .j-c {
+    justify-items: center !important;
+  }
+
+  .br-0 {
+    border-radius: 0px !important;
+  }
+
+  .h-50-15 {
+    height: calc(50% - 15px)!important;
+  }
+
+
+  .cst-btn-tb {
+    padding: 0px 5px 0px 5px !important;
+    border: 1px solid #585656 !important;
   }

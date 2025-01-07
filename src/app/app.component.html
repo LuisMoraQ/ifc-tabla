@@ -1,29 +1,68 @@
-<div id="container" style="height: 100vh; width: 100vw; background-color: #202932;"></div>
+<div id="container" style="height: 100vh; width: 100vw; background-color: #a7abc4;"></div>
 
-<div class="container-tabla" *ngIf="mostrarNavbar">
-    <div class="col-12 d-flex px-3 py-1">
-        <!-- Botón para cargar un archivo -->
-        <button class="btn btn-mini2 bg-success" (click)="fileInput.click()">
-            <i class="fa fa-upload"></i> Documento
-        </button>
+<div class="col-12 d-flex">
+    <div class="container-tabla" *ngIf="mostrarNavbar">
+        <div class=" d-flex px-3 py-1">
+            <!-- Botón para cargar un archivo -->
+            <!-- <ng-container *ngIf="vinculoActivado; else visual">
+            <div class="btn-group dropend">
+                <button class="btn btn-mini2 btn-outline-secondary ms-1"
+                    title="salir de vinculo con Metrado presupuesto" (click)="this.vinculoActivado = false">
+                    <i class="fa fa-ban"></i>
+                </button>
+                <button class="btn btn-mini2 bg-secondary ms-1" title="Activar multiple del grafico"
+                    (click)="multGrafico = !multGrafico " [class.active]="multGrafico">
+                    <i class="fa fa-sliders"></i>
+                </button>
+                <button type="button" class="btn btn-secondary dropdown-toggle btn-mini2 ms-1" data-bs-toggle="dropdown"
+                    aria-expanded="false">
+                    <i class="fa fa-ellipsis-v"></i>
+                </button>
+                <ul class="dropdown-menu">
+                    <li (click)="todoElGrupo()">
+                        <a class="dropdown-item">Seleccionar Todo el grupo</a>
+                    </li>
+                    <li (click)="todoElNivel()">
+                        <a class="dropdown-item">Seleccionar todo el nivel</a>
+                    </li>
+                    <li (click)="todoElTipo()">
+                        <a class="dropdown-item">Seleccionar los del mismo tipo</a>
+                    </li>
+                </ul>
+            </div>
+        </ng-container>
+        <ng-template #visual> -->
+            <button class="btn btn-mini2 " (click)="fileInput.click()"
+                [ngClass]="{'btn-outline-primary': this.selectedFile, 'bg-primary': !this.selectedFile}">
+                <i class="fa fa-upload"></i> <ng-container *ngIf="!this.selectedFile">Documento </ng-container>
+            </button>
+            <input type="file" #fileInput style="display: none;" (change)="cargarDocumento($event)" />
+            <ng-container *ngIf="selectedFile">
+                <!-- <button class="btn btn-mini2 bg-secondary ms-5" title="Ver dimesiones" (click)="verBarrasDimensiones()"
+                    [class.active]="verDimensiones">
+                    <i class="fa fa-text-height"></i>
+                </button>
+                <button class="btn btn-mini2 bg-secondary ms-1" title="Ver volumenes" (click)="verVisualVolumenes()"
+                    [class.active]="verVolumen">
+                    <i class="fa fa-cube"></i>
+                </button> -->
+                <div class="d-flex justify-content-center" style="width: 24rem;">
+                    <button class="btn btn-mini2 br-0" [ngClass]="{'btn-outline-info':paso == 2, 'bg-info': paso == 1}"
+                        title="Vincular con partida de Metrado presupuesto" (click)="this.paso = 1">
+                        <i class="fa fa-sliders"></i> Vinculo
+                    </button>
 
-        <!-- Input tipo file oculto -->
-        <input type="file" #fileInput style="display: none;" (change)="cargarDocumento($event)" />
-        <ng-container *ngIf="selectedFile">
-            <button class="btn btn-mini2 bg-secondary ms-5" title="Ver dimesiones" (click)="verBarrasDimensiones()"
-                [class.active]="verDimensiones">
-                <i class="fa fa-text-height"></i>
-            </button>
-            <button class="btn btn-mini2 bg-secondary ms-1" title="Ver volumenes" (click)="verVisualVolumenes()"
-                [class.active]="verVolumen">
-                <i class="fa fa-cube"></i>
-            </button>
-            <!-- <select class="select-abso"  [(ngModel)]="tipoTabla" (change)="cambioTabla()">
-                <option value="0">Niveles</option>
-                <option value="1">Agrupamientos</option>
-              </select> -->
-            <div class="btn-group dropstart select-abso">
-                <button type="button" title="Tipo de tabla" class="btn btn-info dropdown-toggle btn-mini2 me-1" data-bs-toggle="dropdown"
+                    <button class="btn btn-mini2 bg-info br-0" title="Generar metrado "
+                        [ngClass]="{'btn-outline-info':paso == 1, 'bg-info':paso == 2}" (click)="this.paso = 2">
+                        <i class="fa fa-list"></i> Metrado
+                    </button>
+                </div>
+            </ng-container>
+            <!-- </ng-template> -->
+
+            <div class="btn-group dropstart select-abso" *ngIf="selectedFile">
+                <button type="button" title="Tipo de tabla"
+                    class="btn btn-outline-secondary dropdown-toggle btn-mini2 me-1" data-bs-toggle="dropdown"
                     aria-expanded="false">
                     <i class="fa fa-ellipsis-v"></i>
                 </button>
@@ -36,247 +75,443 @@
                     </li>
                 </ul>
             </div>
-        </ng-container>
-    </div>
-    <div class="col-12 header-nav w-100 d-flex color-h4 " *ngIf="selectedFile">
-        <h4 style="font-size: 16px; margin-bottom: 0;font-size: 10px;"> DOCUMENTO : </h4>
-        <span class="ms-1 span-over" style="font-size: 10px;">{{selectedFile.name}}</span>
-    </div>
-    <div class="col-12 h-tablas-container">
-        <div class="col-12 b-containers h-50 contenido-centrado">
-            <ng-container *ngIf=" selectedFile && !buscando && !buscando2 ">
-                <div class="w-100 h-100 overflow-auto ">
-                    <ng-container *ngIf="tipoTabla == 0">
-                        <table class=" table-bordered w-100">
-                            <thead class="head-sticky text-center">
-                                <tr>
-                                    <th colspan="4">
-                                        NIVELES
-                                    </th>
-                                </tr>
-                                <tr>
 
-                                    <th class="propertiesPanel" [style.width.px]="40">VISIBLE</th>
-                                    <th class="propertiesPanel" [style.width.px]="200">TIPO</th>
-                                    <th class="propertiesPanel" [style.min-width.px]="250">ELEMENTO</th>
-                                    <th [style.width.px]="40"></th>
-                                    <!-- <th class="propertiesPanel" [style.width.px]="60">DESCRIPC.</th> -->
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <ng-container *ngIf="dataIFC.length">
-                                    <ng-container *ngFor="let row of dataIFC; let i = index; trackBy: trackByFn">
-                                        <ng-container *ngIf="row.mostrar">
-                                            <tr (click)="seleccionRow(row,i)" #fila tabindex="0">
-
-                                                <td class="text-center"
-                                                    [ngClass]="{'highlight-row': this.filaSel == row.ind }">
-                                                    <input class="form-check-input" type="checkbox"
-                                                        [checked]="row.visible" (change)="hiderRow(row, $event, i)">
-                                                </td>
-                                                <td class="text-center"
-                                                    [ngClass]="{'highlight-row': this.filaSel == row.ind }">
-                                                    <div class="d-flex align-content-center"
-                                                        [ngStyle]="{'margin-left':  (row.nivel * 10)  + 'px'}">
-                                                        <i class="fa fa-minus btn-cst align-content-center"
-                                                            *ngIf="!row.active && row.nivel <= 4"
-                                                            (click)="toggleRow(i, false)"></i>
-                                                        <i class="fa fa-plus btn-cst align-content-center"
-                                                            *ngIf="row.active && row.nivel <= 4"
-                                                            (click)="toggleRow(i, true)"></i>
-                                                        <span class="badge rounded-pill text-bg-secondary ms-1"
-                                                            *ngIf="row.claseTraducida == 'Piso de Edificio'; else otro">{{row.claseTraducida}}</span>
-                                                        <ng-template #otro>
-
-                                                            <div class="ms-1 text-start"
-                                                                [ngStyle]="{'text-decoration': row.nivel == 4 ? 'underline': ''}">
-                                                                {{row.claseTraducida}}
-                                                            </div>
-
-                                                        </ng-template>
-                                                    </div>
-
-                                                </td>
-                                                <td [ngClass]="{'highlight-row': this.filaSel == row.ind }">
-                                                    {{row.informacion?.Name?.value}}</td>
-                                                <td class="text-center"
-                                                    [ngClass]="{'highlight-row': this.filaSel == row.ind }">
-                                                    <div class="form-check form-switch" style="min-height: 0;">
-                                                        <input class="form-check-input" type="checkbox"
-                                                            id="flexSwitchCheckChecked">
-                                                        <label class="form-check-label"
-                                                            for="flexSwitchCheckChecked"></label>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        </ng-container>
-                                    </ng-container>
-                                </ng-container>
-                            </tbody>
-                        </table>
-                    </ng-container>
-                    <ng-container *ngIf="tipoTabla == 1">
-                        <table class=" table-bordered w-100">
-                            <thead class="head-sticky text-center">
-                                <tr>
-                                    <th colspan="4">
-                                        AGRUPAMIENTOS
-                                    </th>
-                                </tr>
-                                <tr>
-
-                                    <th class="propertiesPanel" [style.width.px]="40">
-                                        <input class="form-check-input" type="checkbox"
-                                         (change)="hiderRow2(null,$event,0)" checked>
-                                    </th>
-                                    <th class="propertiesPanel" [style.width.px]="200">TIPO</th>
-                                    <th class="propertiesPanel" [style.min-width.px]="250">ELEMENTO</th>
-                                    <th [style.width.px]="22"></th>
-                                    <!-- <th class="propertiesPanel" [style.width.px]="60">DESCRIPC.</th> -->
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <ng-container *ngIf="tablaGrupos.length">
-                                    <ng-container *ngFor="let row of tablaGrupos; let i = index;">
-                                        <ng-container *ngIf="row.mostrar">
-                                            <tr (click)="seleccionRow2(row,i)" #fila tabindex="0">
-
-                                                <td class="text-center"
-                                                    [ngClass]="{'highlight-row': this.filaSel == row.ind }">
-                                                    <input class="form-check-input" type="checkbox"
-                                                        [checked]="row.visible" (change)="hiderRow2(row, $event, i)">
-                                                </td>
-                                                <td class="text-center"
-                                                    [ngClass]="{'highlight-row': this.filaSel == row.ind }">
-                                                    <div class="d-flex align-content-center"
-                                                        [ngStyle]="{'margin-left':  (row.nivel == 4 ?  5 : 15)  + 'px'}">
-                                                        <i class="fa fa-minus btn-cst align-content-center"
-                                                            *ngIf="!row.active && row.nivel <= 4"
-                                                            (click)="toggleRow2(i, false)"></i>
-                                                        <i class="fa fa-plus btn-cst align-content-center"
-                                                            *ngIf="row.active && row.nivel <= 4"
-                                                            (click)="toggleRow2(i, true)"></i>
-                                                        <span class="badge rounded-pill text-bg-secondary ms-1"
-                                                            *ngIf="row.claseTraducida == 'Piso de Edificio'; else otro">{{row.claseTraducida}}</span>
-                                                        <ng-template #otro>
-
-                                                            <div class="ms-1 text-start"
-                                                                [ngStyle]="{'text-decoration': row.nivel == 4 ? 'underline': ''}">
-                                                                {{row.claseTraducida}}
-                                                            </div>
-
-                                                        </ng-template>
-                                                    </div>
-
-                                                </td>
-                                                <td [ngClass]="{'highlight-row': this.filaSel == row.ind }">
-                                                    {{row.informacion?.Name?.value}}</td>
-                                                <td class="text-center"
-                                                    [ngClass]="{'highlight-row': this.filaSel == row.ind }">
-                                                    <div class="form-check form-switch" style="min-height: 0;">
-                                                        <input class="form-check-input" type="checkbox"
-                                                            id="flexSwitchCheckChecked">
-                                                        <label class="form-check-label"
-                                                            for="flexSwitchCheckChecked"></label>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        </ng-container>
-                                    </ng-container>
-                                </ng-container>
-                            </tbody>
-                        </table>
-                    </ng-container>
-                </div>
-
-            </ng-container>
-            <ng-container *ngIf="buscando && !buscando2">
-                <span class="loader"></span>
-            </ng-container>
-            <ng-container *ngIf="buscando2 && !buscando">
-                <span class="loader2"></span>
-            </ng-container>
         </div>
-        <div class="col-12 b-containers h-50 " *ngIf="dataIFC.length && infoSeleccionado">
-            <div class="tabs">
-                <ul class="tab-titles">
-                    <li class="tab-title" data-tab="tab-1" (click)="tab=0" [ngClass]="{'active': tab == 0}">PROPIEDADES
-                    </li>
-                    <li class="tab-title" data-tab="tab-2" (click)="tab=1" [ngClass]="{'active': tab == 1}">GEOMETRICOS
-                    </li>
-                    <li class="tab-title" data-tab="tab-3" (click)="tab=2" [ngClass]="{'active': tab == 2}">DIMENSIONES
-                    </li>
-                </ul>
+        <div class="col-12 header-nav w-100 d-flex color-h4 " *ngIf="selectedFile">
+            <h4 style="font-size: 16px; margin-bottom: 0;font-size: 10px;"> DOCUMENTO : </h4>
+            <span class="ms-1 span-over" style="font-size: 10px;">{{selectedFile.name}}</span>
+        </div>
+        <!-- <div class="col-12 d-flex" *ngIf="selectedFile">
+           
+        </div> -->
 
-                <div class="tab-content overflow-auto" *ngIf="tab == 0">
+        <div class="col-12 h-tablas-container">
+            <!-- <div class="col-12 d-flex justify-content-between" *ngIf="vinculoActivado">
 
-                    <ul class="list-group list-group-horizontal-sm">
-                        <li class="list-group-item w-35 fw-semibold cstm">Proyecto</li>
-                        <li class="list-group-item w-65 cstm">{{guid}}</li>
-                    </ul>
-                    <ul class="list-group list-group-horizontal-sm" *ngIf="infoSeleccionado?.nivel > 3">
-                        <li class="list-group-item w-35 fw-semibold cstm">Piso</li>
-                        <li class="list-group-item w-65 cstm">{{nivel}}</li>
-                    </ul>
-                    <ul class="list-group list-group-horizontal-sm" *ngIf="infoSeleccionado?.informacion?.Tag">
-                        <li class="list-group-item w-35 fw-semibold cstm">Ifc Entidad</li>
-                        <li class="list-group-item w-65 cstm">{{infoSeleccionado?.clase}}</li>
-                    </ul>
-                    <ul class="list-group list-group-horizontal-sm" *ngIf="infoSeleccionado?.informacion?.Name">
-                        <li class="list-group-item w-35 fw-semibold cstm">Nombre</li>
-                        <li class="list-group-item w-65 cstm">{{infoSeleccionado?.informacion?.Name?.value}}</li>
-                    </ul>
-                    <ul class="list-group list-group-horizontal-sm" *ngIf="infoSeleccionado?.informacion?.ObjectType">
-                        <li class="list-group-item w-35 fw-semibold cstm">Tipo Objeto</li>
-                        <li class="list-group-item w-65 cstm">{{infoSeleccionado?.informacion?.ObjectType?.value}}</li>
-                    </ul>
-                    <ul class="list-group list-group-horizontal-sm" *ngIf="infoSeleccionado?.informacion?.Tag">
-                        <li class="list-group-item w-35 fw-semibold cstm">Tag</li>
-                        <li class="list-group-item w-65 cstm">{{infoSeleccionado?.informacion?.Tag?.value}}</li>
-                    </ul>
-                </div>
-                <div class="tab-content overflow-auto" *ngIf="tab == 1">
-                    <ul class="list-group list-group-horizontal-sm">
-                        <li class="list-group-item w-50 fw-semibold cstm">Bounding Box Length</li>
-                        <li class="list-group-item w-50-a cstm">{{dataGeometrica?.boundingboxlength}}</li>
-                    </ul>
-                    <ul class="list-group list-group-horizontal-sm">
-                        <li class="list-group-item w-50 fw-semibold cstm">Bounding Box Width</li>
-                        <li class="list-group-item w-50-a cstm">{{dataGeometrica?.boundingboxwidth}}</li>
-                    </ul>
-                    <ul class="list-group list-group-horizontal-sm">
-                        <li class="list-group-item w-50 fw-semibold cstm">Bounding Box Height</li>
-                        <li class="list-group-item w-50-a cstm">{{dataGeometrica?.boundingboxheight}}</li>
-                    </ul>
-                </div>
-                <div class="tab-content overflow-auto" *ngIf="tab == 2">
-                    <ul class="list-group list-group-horizontal-sm">
-                        <li class="list-group-item w-50 fw-semibold cstm">Area Max</li>
-                        <li class="list-group-item w-50-a cstm">{{dataGeometrica?.AreaMaxima}}</li>
-                    </ul>
-                    <ul class="list-group list-group-horizontal-sm">
-                        <li class="list-group-item w-50 fw-semibold cstm">Thickness</li>
-                        <li class="list-group-item w-50-a cstm">{{dataGeometrica?.Thickness}}</li>
-                    </ul>
-                    <ul class="list-group list-group-horizontal-sm">
-                        <li class="list-group-item w-50 fw-semibold cstm">Area Total</li>
-                        <li class="list-group-item w-50-a cstm">{{dataGeometrica?.AreaTotal}}</li>
-                    </ul>
-                    <ul class="list-group list-group-horizontal-sm">
-                        <li class="list-group-item w-50 fw-semibold cstm">Volumen</li>
-                        <li class="list-group-item w-50-a cstm">{{dataGeometrica?.volumen}}</li>
-                    </ul>
-                </div>
+            <button class="btn btn btn-mini2 btn-outline-secondary ms-1" (click)="habMultiple()"
+                title="Copiar vinculo a multiples partidas">
+                <i class="fa fa-check-square" aria-hidden="true"></i>
+            </button>
+            <div class="d-flex">
+                <button class="btn btn btn-mini2 btn-danger" *ngIf="multPres" title="cancelar">
+                    <i class="fa fa-times" aria-hidden="true"></i>
+                </button>
+                <button class="btn btn btn-mini2 btn-success" *ngIf="multPres"
+                    title="copiar vinculo a los selccionados">
+                    <i class="fa fa-save" aria-hidden="true"></i>
+                </button>
             </div>
 
+
+        </div> -->
+            <div class="col-12 b-containers h-50-15 overflow-auto" *ngIf="vinculoActivado">
+
+                <div class="w-100 h-100">
+                    <table class=" table-bordered w-100">
+                        <thead class="head-sticky text-center">
+                            <tr>
+                                <th class="propertiesPanel" colspan="4">Metrado Presupuesto</th>
+                            </tr>
+                            <tr>
+                                <th class="propertiesPanel" style="width: 350px;">Descripcion</th>
+                                <th class="propertiesPanel" style="width: 40px;">Unidad</th>
+                                <th class="propertiesPanel">Vinculados</th>
+                                <th class="propertiesPanel" *ngIf="multPres"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let row of tablaMetrado; let i = index">
+                                <td (click)="selFilTabMetr(row,i)"
+                                    [ngClass]="{'highlight-row': this.filPres == row.ind }">
+                                    <!-- {{row.item}} -->
+                                    <div class="d-flex" style="width: 350px;">
+                                        <div class="recortatextlinea" [title]="row.item"
+                                            [style.padding-left.px]="((row.item.toString().split('.').length-1)*5)+(row.unidad!=''?17:0)">
+                                            <span
+                                                style="font-weight: 700;">{{row.item}}</span>&nbsp;&nbsp;{{row.descripcion}}
+                                        </div>
+
+                                    </div>
+                                </td>
+                                <td class="text-center" style="width: 40px;" (click)="selFilTabMetr(row,i)"
+                                    [ngClass]="{'highlight-row': this.filPres == row.ind }">
+                                    {{row.unidad}}
+                                </td>
+                                <td (click)="selFilTabMetr(row,i)" class="text-center"
+                                    [ngClass]="{'highlight-row': this.filPres == row.ind }">
+                                    <!-- {{row.vinculos}} -->
+                                     <button  class="btn btn-mini2 btn-secondary cst-btn-tb" *ngIf="row.vinculos" (click)="verVinculados(row)" title="Ver resumen vinculados">
+                                        <i class="fa fa-list"></i>
+                                     </button>
+                                </td>
+                                <td *ngIf="multPres">
+                                    <input *ngIf="row.unidad" class="form-check-input" type="checkbox"
+                                        [checked]="row.vinculado" (change)="sliderIfc(row,i,$event, 2)">
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="col-12 d-flex mt-1" *ngIf="vinculoActivado">
+                <input style ="height: 25px;" type="text" class="w-100" [(ngModel)]="searchText" placeholder="Buscar elemento...">
+                <button class="btn btn-outline-secondary btn-mini2" (click)="searchText = ''"><i class="fa fa-times" ></i></button>
+            </div>
+            <div class="col-12 b-containers h-50 contenido-centrado">
+                <ng-container *ngIf=" selectedFile && !buscando && !buscando2 ">
+                    <div class="w-100 h-100 overflow-auto mt-2">
+                        <ng-container *ngIf="tipoTabla == 0">
+                            <table class=" table-bordered w-100">
+                                <thead class="head-sticky text-center">
+                                    <tr>
+                                        <th colspan="4">
+                                            NIVELES
+                                        </th>
+                                    </tr>
+                                    <tr>
+                                        <th class="propertiesPanel" [style.width.px]="40">
+                                            <i class="fa fa-eye" title="Elemento visible en el grafico"></i>
+                                        </th>
+                                        <th class="propertiesPanel" [style.width.px]="200">TIPO</th>
+                                        <th class="propertiesPanel" [style.min-width.px]="250">ELEMENTO</th>
+                                        <th [style.width.px]="40" *ngIf="vinculoActivado"></th>
+                                        <!-- <th class="propertiesPanel" [style.width.px]="60">DESCRIPC.</th> -->
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <ng-container *ngIf="dataIFC.length">
+                                        <ng-container
+                                            *ngFor="let row of dataIFC | filterData:searchText; let i = index;">
+                                            <ng-container *ngIf="row.mostrar || searchText">
+                                                <tr (click)="seleccionRow(row,i)" #fila tabindex="0">
+                                                    <td class="text-center"
+                                                        [ngClass]="{'highlight-row': this.filaSel == row.ind }">
+                                                        <input class="form-check-input" type="checkbox"
+                                                            [checked]="row.visible" (change)="hiderRow(row, $event, i)">
+                                                    </td>
+                                                    <td class="text-center"
+                                                        [ngClass]="{'highlight-row': this.filaSel == row.ind }">
+                                                        <div class="d-flex align-content-center"
+                                                            [ngStyle]="{'margin-left':  (row.nivel * 10)  + 'px'}">
+                                                            <ng-container *ngIf="!searchText">
+                                                                <i class="fa fa-minus btn-cst align-content-center"
+                                                                    *ngIf="!row.active && row.nivel <= 4"
+                                                                    (click)="toggleRow(i, false)"></i>
+                                                                <i class="fa fa-plus btn-cst align-content-center"
+                                                                    *ngIf="row.active && row.nivel <= 4"
+                                                                    (click)="toggleRow(i, true)"></i>
+                                                            </ng-container>
+
+                                                            <span class="badge rounded-pill text-bg-secondary ms-1"
+                                                                *ngIf="row.claseTraducida == 'Piso de Edificio'; else otro">
+                                                                {{row.claseTraducida}}
+                                                            </span>
+                                                            <ng-template #otro>
+
+                                                                <div class="ms-1 text-start "
+                                                                    [ngStyle]="{'text-decoration': row.nivel == 4 ? 'underline': ''}">
+                                                                    {{row.claseTraducida}}
+                                                                </div>
+
+                                                            </ng-template>
+                                                            <div class="ms-1 align-self-center"
+                                                                *ngIf="row.nivel < 5 && row.nivel > 2 && !searchText">
+                                                                ({{row.nroIncluidos}})
+                                                            </div>
+                                                        </div>
+
+                                                    </td>
+                                                    <td [ngClass]="{'highlight-row': this.filaSel == row.ind }">
+                                                        {{row.informacion?.Name?.value}}</td>
+                                                    <td class="text-center j-c" *ngIf="vinculoActivado"
+                                                        [ngClass]="{'highlight-row': this.filaSel == row.ind }">
+                                                        <ng-container *ngIf="row.nivel > 2">
+                                                            <div class="form-check form-switch" style="min-height: 0;"
+                                                                (click)="onCheckboxClick()">
+                                                                <input class="form-check-input" type="checkbox"
+                                                                    [disabled]="(this.filPres == null || this.filPres !== null && !this.tablaMetrado[this.filPres].unidad) || bloqVincPartid"
+                                                                    (change)="sliderIfc(row,i,$event, 1)"
+                                                                    id="flexSwitchCheckChecked"
+                                                                    [checked]="row.vinculado">
+                                                                <label class="form-check-label"
+                                                                    for="flexSwitchCheckChecked"></label>
+                                                            </div>
+                                                        </ng-container>
+                                                    </td>
+                                                </tr>
+                                            </ng-container>
+                                        </ng-container>
+                                        <ng-container *ngIf="(dataIFC | filterData:searchText).length === 0">
+                                            <tr>
+                                                <td colspan="5" class="text-center">No se encontraron resultados</td>
+                                            </tr>
+                                        </ng-container>
+                                    </ng-container>
+                                    
+                                </tbody>
+                            </table>
+                        </ng-container>
+                        <ng-container *ngIf="tipoTabla == 1">
+                            <table class=" table-bordered w-100">
+                                <thead class="head-sticky text-center">
+                                    <tr>
+                                        <th colspan="4">
+                                            AGRUPAMIENTOS
+                                        </th>
+                                    </tr>
+                                    <tr>
+                                        <th class="propertiesPanel" [style.width.px]="40">
+                                            <input class="form-check-input" type="checkbox"
+                                                (change)="hiderRow2(null,$event,0)" checked>
+                                        </th>
+                                        <th class="propertiesPanel" [style.width.px]="200">TIPO</th>
+                                        <th class="propertiesPanel" [style.min-width.px]="250">ELEMENTO</th>
+                                        <th [style.width.px]="22"></th>
+                                        <!-- <th class="propertiesPanel" [style.width.px]="60">DESCRIPC.</th> -->
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <ng-container *ngIf="tablaGrupos.length">
+                                        <ng-container *ngFor="let row of tablaGrupos; let i = index;">
+                                            <ng-container *ngIf="row.mostrar">
+                                                <tr (click)="seleccionRow2(row,i)" #fila tabindex="0">
+
+                                                    <td class="text-center"
+                                                        [ngClass]="{'highlight-row': this.filaSel == row.ind }">
+                                                        <input class="form-check-input" type="checkbox"
+                                                            [checked]="row.visible"
+                                                            (change)="hiderRow2(row, $event, i)">
+                                                    </td>
+                                                    <td class="text-center"
+                                                        [ngClass]="{'highlight-row': this.filaSel == row.ind }">
+                                                        <div class="d-flex align-content-center"
+                                                            [ngStyle]="{'margin-left':  (row.nivel == 4 ?  5 : 15)  + 'px'}">
+                                                            <i class="fa fa-minus btn-cst align-content-center"
+                                                                *ngIf="!row.active && row.nivel <= 4"
+                                                                (click)="toggleRow2(i, false)"></i>
+                                                            <i class="fa fa-plus btn-cst align-content-center"
+                                                                *ngIf="row.active && row.nivel <= 4"
+                                                                (click)="toggleRow2(i, true)"></i>
+                                                            <span class="badge rounded-pill text-bg-secondary ms-1"
+                                                                *ngIf="row.claseTraducida == 'Piso de Edificio'; else otro">{{row.claseTraducida}}</span>
+                                                            <ng-template #otro>
+
+                                                                <div class="ms-1 text-start"
+                                                                    [ngStyle]="{'text-decoration': row.nivel == 4 ? 'underline': ''}">
+                                                                    {{row.claseTraducida}}
+                                                                </div>
+
+                                                            </ng-template>
+                                                        </div>
+
+                                                    </td>
+                                                    <td [ngClass]="{'highlight-row': this.filaSel == row.ind }">
+                                                        {{row.informacion?.Name?.value}}</td>
+                                                    <td class="text-center justify-items-center"
+                                                        [ngClass]="{'highlight-row': this.filaSel == row.ind }">
+                                                        <div class="form-check form-switch" style="min-height: 0;">
+                                                            <input class="form-check-input" type="checkbox"
+                                                                id="flexSwitchCheckChecked">
+                                                            <label class="form-check-label"
+                                                                for="flexSwitchCheckChecked"></label>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            </ng-container>
+                                        </ng-container>
+                                    </ng-container>
+                                </tbody>
+                            </table>
+                        </ng-container>
+                    </div>
+
+                </ng-container>
+                <ng-container *ngIf="buscando && !buscando2">
+                    <span class="loader"></span>
+                </ng-container>
+                <ng-container *ngIf="buscando2 && !buscando">
+                    <span class="loader2"></span>
+                </ng-container>
+            </div>
+
+
+            <div class="col-12 b-containers h-50-15 overflow-auto"
+                *ngIf="!vinculoActivado && (dataIFC.length || tablaGrupos.length) ">
+                <ng-container *ngIf="infoSeleccionado">
+                    <div class="tabs">
+                        <ul class="tab-titles">
+                            <li class="tab-title" data-tab="tab-1" (click)="tab=0" [ngClass]="{'active': tab == 0}">
+                                PROPIEDADES
+                            </li>
+                            <li class="tab-title" data-tab="tab-2" (click)="tab=1" [ngClass]="{'active': tab == 1}">
+                                GEOMETRICOS
+                            </li>
+                            <li class="tab-title" data-tab="tab-3" (click)="tab=2" [ngClass]="{'active': tab == 2}">
+                                DIMENSIONES
+                            </li>
+                        </ul>
+
+                        <div class="tab-content overflow-auto" *ngIf="tab == 0">
+
+                            <ul class="list-group list-group-horizontal-sm">
+                                <li class="list-group-item w-35 fw-semibold cstm">Proyecto</li>
+                                <li class="list-group-item w-65 cstm">{{guid}}</li>
+                            </ul>
+                            <ul class="list-group list-group-horizontal-sm" *ngIf="infoSeleccionado?.nivel > 3">
+                                <li class="list-group-item w-35 fw-semibold cstm">Piso</li>
+                                <li class="list-group-item w-65 cstm">{{nivel}}</li>
+                            </ul>
+                            <ul class="list-group list-group-horizontal-sm" *ngIf="infoSeleccionado?.informacion?.Tag">
+                                <li class="list-group-item w-35 fw-semibold cstm">Ifc Entidad</li>
+                                <li class="list-group-item w-65 cstm">{{infoSeleccionado?.clase}}</li>
+                            </ul>
+                            <ul class="list-group list-group-horizontal-sm" *ngIf="infoSeleccionado?.informacion?.Name">
+                                <li class="list-group-item w-35 fw-semibold cstm">Nombre</li>
+                                <li class="list-group-item w-65 cstm">{{infoSeleccionado?.informacion?.Name?.value}}
+                                </li>
+                            </ul>
+                            <ul class="list-group list-group-horizontal-sm"
+                                *ngIf="infoSeleccionado?.informacion?.ObjectType">
+                                <li class="list-group-item w-35 fw-semibold cstm">Tipo Objeto</li>
+                                <li class="list-group-item w-65 cstm">
+                                    {{infoSeleccionado?.informacion?.ObjectType?.value}}
+                                </li>
+                            </ul>
+                            <ul class="list-group list-group-horizontal-sm" *ngIf="infoSeleccionado?.informacion?.Tag">
+                                <li class="list-group-item w-35 fw-semibold cstm">Tag</li>
+                                <li class="list-group-item w-65 cstm">{{infoSeleccionado?.informacion?.Tag?.value}}</li>
+                            </ul>
+                        </div>
+                        <div class="tab-content overflow-auto" *ngIf="tab == 1">
+                            <ul class="list-group list-group-horizontal-sm">
+                                <li class="list-group-item w-50 fw-semibold cstm">Bounding Box Length</li>
+                                <li class="list-group-item w-50-a cstm">{{dataGeometrica?.boundingboxlength}}</li>
+                            </ul>
+                            <ul class="list-group list-group-horizontal-sm">
+                                <li class="list-group-item w-50 fw-semibold cstm">Bounding Box Width</li>
+                                <li class="list-group-item w-50-a cstm">{{dataGeometrica?.boundingboxwidth}}</li>
+                            </ul>
+                            <ul class="list-group list-group-horizontal-sm">
+                                <li class="list-group-item w-50 fw-semibold cstm">Bounding Box Height</li>
+                                <li class="list-group-item w-50-a cstm">{{dataGeometrica?.boundingboxheight}}</li>
+                            </ul>
+                        </div>
+                        <div class="tab-content overflow-auto" *ngIf="tab == 2">
+                            <ul class="list-group list-group-horizontal-sm">
+                                <li class="list-group-item w-50 fw-semibold cstm">Area Max</li>
+                                <li class="list-group-item w-50-a cstm">{{dataGeometrica?.AreaMaxima}}</li>
+                            </ul>
+                            <ul class="list-group list-group-horizontal-sm">
+                                <li class="list-group-item w-50 fw-semibold cstm">Thickness</li>
+                                <li class="list-group-item w-50-a cstm">{{dataGeometrica?.Thickness}}</li>
+                            </ul>
+                            <ul class="list-group list-group-horizontal-sm">
+                                <li class="list-group-item w-50 fw-semibold cstm">Area Total</li>
+                                <li class="list-group-item w-50-a cstm">{{dataGeometrica?.AreaTotal}}</li>
+                            </ul>
+                            <ul class="list-group list-group-horizontal-sm">
+                                <li class="list-group-item w-50 fw-semibold cstm">Volumen</li>
+                                <li class="list-group-item w-50-a cstm">{{dataGeometrica?.volumen}}</li>
+                            </ul>
+                        </div>
+                    </div>
+                </ng-container>
+
+
+            </div>
         </div>
+
     </div>
+    <div class="barra-acciones d-flex justify-content-between align-content-center "
+        *ngIf="selectedFile && mostrarNavbar ">
+        <div class="align-content-center">
+            <button class="btn btn-mini2 ms-1" [title]="!vinculoActivado ? 'Activar Vinculo': 'Cancelar Vinculo'"
+                [ngClass]="{'btn-outline-success': !vinculoActivado, 'bg-success': vinculoActivado}"
+                (click)="vinculoActivado = !vinculoActivado" [class.active]="vinculoActivado">
+                <i class="fa " [ngClass]="{'fa-sliders': !vinculoActivado, 'fa-ban': vinculoActivado}"></i> Vincular
+            </button>
+        </div>
 
+        <div class="d-flex">
+            <div class="btn-group dropstart">
+                <button class="btn btn-mini2 ms-1 btn-outline-secondary" title="Ver grid en el grafico"
+                    (click)="restaurarGraficoCompleto()">
+                    <i class="fa fa-refresh"></i>
+                </button>
+                <button type="button" title="Ocultar elementos"
+                    class="btn btn-outline-secondary dropdown-toggle btn-mini2 me-1" data-bs-toggle="dropdown"
+                    aria-expanded="false">
+                    <i class="fa fa-eye-slash"></i>
+                </button>
+                <ul class="dropdown-menu">
+                    <li (click)="ocultarElNivelSel()">
+                        <a class="dropdown-item">Ocultar mismo tipo en mismo piso</a>
+                    </li>
+                    <li (click)="ocultarTipoSel()">
+                        <a class="dropdown-item">Ocultar mismo tipo en todo el proyecto</a>
+                    </li>
+                    <li (click)="ocultarNoSelec()">
+                        <a class="dropdown-item">Ocultar no seleccionados</a>
+                    </li>
+                </ul>
+            </div>
+            <div class="btn-group dropstart">
+                <button type="button" title="Seleccion elementos"
+                    class="btn btn-outline-secondary dropdown-toggle btn-mini2 me-1" data-bs-toggle="dropdown"
+                    aria-expanded="false">
+                    <i class="fa fa-sort-desc"></i>
+                </button>
+                <ul class="dropdown-menu">
+                    <li (click)="todoElNivelSel()">
+                        <a class="dropdown-item">Seleccionar mismo tipo en mismo piso</a>
+                    </li>
+                    <li (click)="todoTipoSel()">
+                        <a class="dropdown-item">Seleccionar mismo tipo en todo el proyecto</a>
+                    </li>
+                    <li (click)="todoElPiso()">
+                        <a class="dropdown-item">Seleccionar todo el piso</a>
+                    </li>
+                </ul>
+            </div>
+            <button class="btn btn-mini2 ms-1" title="Ver grid en el grafico"
+                [ngClass]="{'btn-outline-secondary': !verGrid, 'bg-secondary': verGrid}" (click)="verGridGrafico()"
+                [class.active]="verGrid">
+                <i class="fa fa-th"></i>
+            </button>
+            <button class="btn btn-mini2  ms-1"
+                [ngClass]="{'btn-outline-secondary': !verDimensiones, 'bg-secondary': verDimensiones}"
+                title="Ver dimesiones" (click)="verBarrasDimensiones()" [class.active]="verDimensiones">
+                <i class="fa fa-text-height"></i>
+            </button>
+            <button class="btn btn-mini2 ms-1" title="Ver volumenes"
+                [ngClass]="{'btn-outline-secondary': !verVolumen, 'bg-secondary': verVolumen}"
+                (click)="verVisualVolumenes()" [class.active]="verVolumen">
+                <i class="fa fa-cube"></i>
+            </button>
+        </div>
+
+
+        <ng-container *ngIf="vinculoActivado">
+            <button class="btn btn btn-mini2 btn-outline-secondary ms-1" (click)="habMultiple()"
+                title="Copiar vinculo a multiples partidas">
+                <i class="fa fa-check-square" aria-hidden="true"></i>
+            </button>
+        </ng-container>
+        <!-- <div class="d-flex align-self-end"> -->
+        <!-- <button class="btn btn btn-mini2 btn-danger" *ngIf="multPres" title="cancelar">
+            <i class="fa fa-times" aria-hidden="true"></i>
+        </button>
+        <button class="btn btn btn-mini2 btn-success" *ngIf="multPres" title="copiar vinculo a los selccionados">
+            <i class="fa fa-save" aria-hidden="true"></i>
+        </button> -->
+
+        <!-- </div> -->
+    </div>
+    <button (click)="toggleNavbar()" [title]="mostrarNavbar ? 'Ocultar Datos': 'Mostrar Datos'" container="body"
+        class="btn btn-primary btn-sm btn-custom-togle"
+        [ngClass]="{'togle-btn-1': !mostrarNavbar, 'togle-btn-2': mostrarNavbar}">
+
+        <i class="fas fa-arrow-left" aria-hidden="true" *ngIf="mostrarNavbar"></i>
+        <i class="fas fa-arrow-right" aria-hidden="true" *ngIf="!mostrarNavbar"></i>
+    </button>
 </div>
-<button (click)="toggleNavbar()" [title]="mostrarNavbar ? 'Ocultar Datos': 'Mostrar Datos'" container="body"
-    class="btn btn-primary btn-sm btn-custom-togle"
-    [ngClass]="{'togle-btn-1': !mostrarNavbar, 'togle-btn-2': mostrarNavbar}">
-
-    <i class="fas fa-arrow-left" aria-hidden="true" *ngIf="mostrarNavbar"></i>
-    <i class="fas fa-arrow-right" aria-hidden="true" *ngIf="!mostrarNavbar"></i>
-</button>

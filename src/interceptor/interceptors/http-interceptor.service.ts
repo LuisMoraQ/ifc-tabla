@@ -14,7 +14,7 @@ export class HttpInterceptorService {
 
   intercept(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
     let token = this._EncriptadorService.recuperarlocalstory('token')
-    console.log('token', token)
+    // console.log('token', token)
     let clonedReq=request;
     if(token){
       clonedReq=request.clone({

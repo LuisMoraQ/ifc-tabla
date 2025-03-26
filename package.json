@@ -28,6 +28,8 @@
     "@thatopen/ui-obc": "^2.4.1",
     "bootstrap": "^5.3.3",
     "crypto-js": "^4.2.0",
+    "primeicons": "^7.0.0",
+    "primeng": "^14.2.3",
     "rxjs": "~7.5.0",
     "three": "^0.171.0",
     "tslib": "^2.3.0",

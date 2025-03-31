@@ -23,7 +23,6 @@ import {
   CSS2DObject,
   CSS2DRenderer,
 } from 'three/examples/jsm/renderers/CSS2DRenderer';
-import { group } from 'console';
 import { lastValueFrom } from 'rxjs';
 
 interface Elemento {
@@ -205,7 +204,7 @@ export class AppComponent implements OnInit, AfterViewInit {
   vinculoActivado = false;
   multGrafico = false;
   tablaMetrado: any;
-  paso = 1;
+  paso = 0;
   filPres = null;
   multPres = false;
   grid!: OBC.SimpleGrid;
@@ -242,8 +241,8 @@ export class AppComponent implements OnInit, AfterViewInit {
   // coloresRestaurar: any[] = [];
   coloresRestaurarVol: any[] = [];
   indCopVinc: number[] = [];
-  id_proyecto: number = 291; // 291 l  -- 285 ing
-  id_usuario: number = 3; // 3 l - 9 ing
+  id_proyecto: number = 285; // 291 l  -- 285 ing
+  id_usuario: number = 9; // 3 l - 9 ing
   tablaPlantilla: Plantilla[] = [];
   mostrarPrevPlant: boolean = false;
   gruposVinc: any = {};
@@ -287,6 +286,7 @@ export class AppComponent implements OnInit, AfterViewInit {
     detalles: any;
   }[] = [];
   ultResTabGen: any;
+  resalListaGrup: any = null;
   get isNotEmpty() {
     if (Object.keys(this.multAcumulados).length > 0) {
       return Object.keys(this.multAcumulados).length > 0;
@@ -1878,7 +1878,8 @@ export class AppComponent implements OnInit, AfterViewInit {
         this.clipper?.deleteAll();
         // this.clipper.dispose()
       }
-      this.verificarActHighlighter();
+      this.highlighter.enabled = true;
+      // this.verificarActHighlighter();
     }
   }
 
@@ -2430,7 +2431,6 @@ export class AppComponent implements OnInit, AfterViewInit {
       return;
     }
 
-    // this.highlighter.clear();
     let proyecto = '';
     let nivel = '';
     for (let i = index; i >= 0; i--) {
@@ -2493,6 +2493,7 @@ export class AppComponent implements OnInit, AfterViewInit {
         this.highlighter.highlightByID('select', concatenado, true);
         this.multAcumulados = concatenado;
       } else {
+        this.highlighter.clear();
       }
     }
 
@@ -2858,7 +2859,7 @@ export class AppComponent implements OnInit, AfterViewInit {
     this.codigoDocumento = null;
     this.filPres = null;
     this.multPres = false;
-    this.paso = 1;
+    this.paso = 0;
     this.visible = false;
     this.visible2 = false;
     this.filSelVinc = null;
@@ -2886,80 +2887,6 @@ export class AppComponent implements OnInit, AfterViewInit {
     this.verColDetalle = false;
     this.filTabGenerada = [];
     this.ultResTabGen = null;
-  }
-
-  sliderIfc(row: any, ind: number, event: any, fuente: number) {
-    const almacenar = [];
-
-    let agregar = [];
-    let eliminar = [];
-
-    if (row.nivel < 5) {
-      for (let i = row.ind + 1; i < this.dataIFC.length; i++) {
-        let element = this.dataIFC[i];
-        if (element.nivel > row.nivel) {
-          if (event.target.checked) {
-            if (element.nivel > 4) {
-              agregar.push(element.informacion.GlobalId.value);
-            }
-          } else {
-            if (element.nivel > 4) {
-              eliminar.push(element.informacion.GlobalId.value);
-              this.limpiarResalElim(element.informacion.expressID);
-            }
-          }
-          element.vinculado = event.target.checked;
-        } else {
-          break;
-        }
-      }
-    } else {
-      if (event.target.checked) {
-        agregar.push(row.informacion.GlobalId.value);
-      } else {
-        eliminar.push(row.informacion.GlobalId.value);
-        this.limpiarResalElim(row.informacion.expressID);
-      }
-    }
-    if (this.filPres !== null) {
-      let vinculos = this.tablaMetrado[this.filPres].vinculos
-        ? this.tablaMetrado[this.filPres].vinculos?.split('|')
-        : [];
-      if (agregar.length) {
-        for (const element of agregar) {
-          if (!vinculos.includes(element)) {
-            vinculos.push(element);
-          }
-        }
-      }
-      if (eliminar.length) {
-        for (const element of eliminar) {
-          if (vinculos.includes(element)) {
-            let indice = vinculos.indexOf(element);
-            if (indice !== -1) {
-              vinculos.splice(indice, 1);
-            }
-          }
-        }
-      }
-      this.tablaMetrado[this.filPres].vinculos = vinculos.join('|');
-      this.tablaMetrado[this.filPres].nombredoc = vinculos.length
-        ? this.selectedFile.name
-        : '';
-      this.tablaMetrado[this.filPres].clavedoc = vinculos.length
-        ? this.codigoDocumento
-        : '';
-      this.tablaMetrado[this.filPres].color = vinculos.length
-        ? this.colorDocumento
-        : '';
-      if (!this.tablaMetrado[this.filPres].plantilla) {
-        this.tablaMetrado[this.filPres].plantilla = '';
-      }
-      almacenar.push(this.tablaMetrado[this.filPres]);
-      // this.guardarVinculos(almacenar);
-
-      this.resaltarVinculados(vinculos);
-    }
   }
 
   // async guardarVinculos(datos: any, toaster = true) {
@@ -3088,11 +3015,6 @@ export class AppComponent implements OnInit, AfterViewInit {
   verVinculados(row: any) {
     let valido = true;
     if (row.clavedoc && row.clavedoc !== this.codigoDocumento) {
-      // this._snackBar.open('Vinculado con otro documento', '', {
-      //   duration: 3000,
-      //   panelClass: ['info-snack-bar'],
-      // });
-      // return;
       valido = false;
     }
     this.listaVinculados = [];
@@ -3110,15 +3032,26 @@ export class AppComponent implements OnInit, AfterViewInit {
     }
     if (!valido) {
       this.confirmationService.confirm({
-        message: 'Desea limpiar los vinculos de esta partida?',
+        message: 'vinculos con otro documento ,Desea reiniciar los vinculos de la partida ?',
         header: 'Eliminar vinculos',
         icon: 'pi pi-exclamation-triangle',
-        accept: () => {
-          this.loading = true;
-          this.mostrarPrevPlant = false;
-          this.limpiarVinculosPartida();
-
-          this.loading = true;
+        accept: async () => {
+          if (this.filPres !== null) {
+            this.loading = true;
+            this.visible = false;
+            this.tablaMetrado[this.filPres].vinculos = '';
+            this.tablaMetrado[this.filPres].nombredoc = '';
+            this.tablaMetrado[this.filPres].clavedoc = '';
+            this.tablaMetrado[this.filPres].color = '';
+            this.tablaMetrado[this.filPres].plantilla = '';
+            this.tablaDetalles[this.filPres] = [];
+            this.tablaGenerada = [];
+            await this.guardarCambios([this.filPres]);
+            const index = JSON.parse(JSON.stringify(this.filPres));
+            this.filPres = null;
+            await this.selFilTabMetr(this.tablaMetrado[index], index);
+            this.loading = false;
+          }
         },
         reject: () => {
           // Reject action
@@ -3182,6 +3115,7 @@ export class AppComponent implements OnInit, AfterViewInit {
     if (i == this.filPres) {
       return;
     }
+
     if (!row.clavedoc || row.clavedoc == this.codigoDocumento) {
       this.bloqVincPartid = false;
     } else {
@@ -3210,7 +3144,7 @@ export class AppComponent implements OnInit, AfterViewInit {
     this.dataGrupoSel = null;
     this.ultimaCelda = null;
     this.visible4 = false;
-    this.filPres = row.ind;
+    this.filPres = i;
     this.dataIFC = this.dataIFC.map((elemento) => ({
       ...elemento,
       vinculado: false,
@@ -3223,12 +3157,14 @@ export class AppComponent implements OnInit, AfterViewInit {
     ) {
       const arr = this.tablaMetrado[this.filPres].vinculos.split('|');
       for (const element of arr) {
+        // console.log('element', element)
         const filaIfc = this.arrGlobalsIds[element];
+        // console.log('filaIfc', filaIfc)
         this.dataIFC[filaIfc.ind].vinculado = true;
       }
       await this.resaltarVinculados(arr);
     }
-    if (this.paso == 2 && this.filPres !== null) {
+    if (this.filPres !== null) {
       if (
         this.tablaMetrado[this.filPres].plantilla &&
         (this.tablaMetrado[this.filPres].clavedoc == this.codigoDocumento ||
@@ -3291,8 +3227,6 @@ export class AppComponent implements OnInit, AfterViewInit {
         // this.selectGrupos.unshift('');
       }
       this.tablaGenerada = this.tablaDetalles[this.filPres];
-      console.log('this.tablaGenerada', this.tablaGenerada);
-      console.log('this.tablaPlnatilla', this.tablaPlantilla);
     }
   }
 
@@ -4416,6 +4350,313 @@ export class AppComponent implements OnInit, AfterViewInit {
   //   }
   // }
 
+  // sliderIfc(row: any, ind: number, event: any, fuente: number) {
+  //   const almacenar = [];
+
+  //   let agregar = [];
+  //   let eliminar = [];
+
+  //   // if (row.nivel < 5) {
+  //   //   for (let i = row.ind + 1; i < this.dataIFC.length; i++) {
+  //   //     let element = this.dataIFC[i];
+  //   //     if (element.nivel > row.nivel) {
+  //   //       if (event.target.checked) {
+  //   //         if (element.nivel > 4) {
+  //   //           agregar.push(element.informacion.GlobalId.value);
+  //   //         }
+  //   //       } else {
+  //   //         if (element.nivel > 4) {
+  //   //           eliminar.push(element.informacion.GlobalId.value);
+  //   //           this.limpiarResalElim(element.informacion.expressID);
+  //   //         }
+  //   //       }
+  //   //       element.vinculado = event.target.checked;
+  //   //     } else {
+  //   //       break;
+  //   //     }
+  //   //   }
+  //   // } else {
+  //   //   if (event.target.checked) {
+  //   //     agregar.push(row.informacion.GlobalId.value);
+  //   //   } else {
+  //   //     eliminar.push(row.informacion.GlobalId.value);
+  //   //     this.limpiarResalElim(row.informacion.expressID);
+  //   //   }
+  //   // }
+  //   // if (this.filPres !== null) {
+  //   //   let vinculos = this.tablaMetrado[this.filPres].vinculos
+  //   //     ? this.tablaMetrado[this.filPres].vinculos?.split('|')
+  //   //     : [];
+  //   //   if (agregar.length) {
+  //   //     for (const element of agregar) {
+  //   //       if (!vinculos.includes(element)) {
+  //   //         vinculos.push(element);
+  //   //       }
+  //   //     }
+  //   //   }
+  //   //   if (eliminar.length) {
+  //   //     for (const element of eliminar) {
+  //   //       if (vinculos.includes(element)) {
+  //   //         let indice = vinculos.indexOf(element);
+  //   //         if (indice !== -1) {
+  //   //           vinculos.splice(indice, 1);
+  //   //         }
+  //   //       }
+  //   //     }
+  //   //   }
+  //   //   this.tablaMetrado[this.filPres].vinculos = vinculos.join('|');
+  //   //   this.tablaMetrado[this.filPres].nombredoc = vinculos.length
+  //   //     ? this.selectedFile.name
+  //   //     : '';
+  //   //   this.tablaMetrado[this.filPres].clavedoc = vinculos.length
+  //   //     ? this.codigoDocumento
+  //   //     : '';
+  //   //   this.tablaMetrado[this.filPres].color = vinculos.length
+  //   //     ? this.colorDocumento
+  //   //     : '';
+  //   //   if (!this.tablaMetrado[this.filPres].plantilla) {
+  //   //     this.tablaMetrado[this.filPres].plantilla = '';
+  //   //   }
+  //   //   almacenar.push(this.tablaMetrado[this.filPres]);
+  //   //   // this.guardarVinculos(almacenar);
+
+  //   //   this.resaltarVinculados(vinculos);
+  //   // }
+
+  // }
+
+  async sliderIfc(row: any, i: any, event: any) {
+    if (this.filPres !== null) {
+      this.loading = true;
+      const concatenado: any = {};
+      function addToSet(uuid: string, value: any) {
+        if (value instanceof Set) {
+          value.forEach((val) => addToSet(uuid, val));
+        } else {
+          concatenado[uuid].add(value);
+        }
+      }
+      if (event.target.checked) {
+        if (row.nivel < 5) {
+           row.vinculado = event.target.checked;
+          for (let i = row.ind + 1; i < this.dataIFC.length; i++) {
+            let element = this.dataIFC[i];
+            if (element.nivel > row.nivel) {
+              if (element.nivel > 4) {
+                const map = await this.busquedaFragmentos(
+                  element.informacion.expressID
+                );
+                if (map) {
+                  Object.entries(map).forEach(
+                    ([uuid, value]: [string, any]) => {
+                      if (!concatenado[uuid]) {
+                        concatenado[uuid] = new Set();
+                      }
+                      addToSet(uuid, value);
+                    }
+                  );
+                }
+              }
+
+              element.vinculado = event.target.checked;
+            } else {
+              break;
+            }
+          }
+        } else {
+          const map = await this.busquedaFragmentos(row.informacion.expressID);
+          if (map) {
+            Object.entries(map).forEach(([uuid, value]: [string, any]) => {
+              if (!concatenado[uuid]) {
+                concatenado[uuid] = new Set();
+              }
+              addToSet(uuid, value);
+            });
+          }
+        }
+        await this.agregarNuevosVinc(concatenado);
+      } else {
+        let eliminar = [];
+        if (row.nivel < 5) {
+          row.vinculado = event.target.checked;
+          for (let i = row.ind + 1; i < this.dataIFC.length; i++) {
+            let element = this.dataIFC[i];
+            if (element.nivel > row.nivel) {
+              if (element.nivel > 4) {
+                eliminar.push(element);
+              }
+
+              element.vinculado = event.target.checked;
+            } else {
+              break;
+            }
+          }
+        } else {
+          eliminar.push(row);
+        }
+       await  this.eliminarVinExisten(eliminar)
+      }
+      this.highlighter.clear()
+      this.filaSel = null
+      this.loading = false;
+    }
+  }
+
+  async agregarNuevosVinc(concatenado: any) {
+    if (this.filPres !== null &&  Object.keys(concatenado).length > 0) {
+      this.loading = true;
+      this.multAcumulados = concatenado;
+      const multAcumulados = concatenado;
+      const nuevosElementos = await this.recuperarElementosByMaps(
+        multAcumulados,
+        this.filPres
+      );
+
+      const index = JSON.parse(JSON.stringify(this.filPres));
+      this.filPres = null;
+      await this.selFilTabMetr(this.tablaMetrado[index], index);
+      if (nuevosElementos.length && this.filPres !== null) {
+        if (
+          this.tablaMetrado[this.filPres].plantilla &&
+          this.filPres !== null &&
+          this.tablaDetalles[this.filPres].length
+        ) {
+          this.tablaGenerada = this.tablaDetalles[this.filPres];
+          for (const element of nuevosElementos) {
+            const dataElement = this.arrGlobalsIds[element];
+            const indice = this.gruposKeys.findIndex(
+              (ele) => ele == dataElement.informacion?.ObjectType?.value
+            );
+            if (indice !== -1) {
+              const grupo = 'G' + (indice + 1);
+              let filasPlantilla: any = this.tablaPlantilla.filter(
+                (ele) => ele.clave_metrado == grupo
+              );
+              for (const filplantilla of filasPlantilla) {
+                let modificar =
+                  filplantilla.tipo == 'Met' || filplantilla.tipo == 'Subm'
+                    ? true
+                    : false;
+                if (filplantilla.tipo == 'Met') {
+                  let sgte = null;
+                  for (
+                    let i = Number(filplantilla.ind);
+                    i < this.tablaPlantilla.length;
+                    i++
+                  ) {
+                    const element = this.tablaPlantilla[i];
+                    if (element.clave_metrado) {
+                      sgte = element;
+                    }
+                  }
+                  if (sgte && sgte.tipo == 'Subm') {
+                    modificar = false;
+                  }
+                }
+                if (modificar) {
+                  const arr = this.gruposVinc[this.gruposKeys[indice]];
+                  const arrayDesglosado = await this.genDatFilPlant(
+                    filplantilla,
+                    arr,
+                    this.tablaMetrado[this.filPres],
+                    indice
+                  );
+                  let arrayReemplazo: any[] = [];
+                  const filasTabGenerad = this.tablaGenerada.filter(
+                    (ele) => filplantilla.id_plantilla == ele.item
+                  );
+                  if (filplantilla.cantidad == 'ACU') {
+                    arrayReemplazo = await this.dataAcumFilPlant(
+                      arrayDesglosado,
+                      filplantilla,
+                      this.tablaMetrado[this.filPres]
+                    );
+
+                    filasTabGenerad.forEach((element) => {
+                      const indFil = this.tablaGenerada.findIndex(
+                        (ele) => ele == element
+                      );
+                      this.tablaGenerada.splice(
+                        indFil,
+                        filasTabGenerad.length,
+                        ...arrayReemplazo
+                      );
+                      this.tablaGenerada.forEach((ele, index) => {
+                        ele.ind = index;
+                        ele.id_metrado = index;
+                      });
+                    });
+                  } else {
+                    // filasTabGenerad.forEach(element => {
+                    const indFil = this.tablaGenerada.findIndex(
+                      (ele) => ele == filasTabGenerad[0]
+                    );
+                    this.tablaGenerada.splice(
+                      indFil,
+                      filasTabGenerad.length,
+                      ...arrayDesglosado
+                    );
+                    this.tablaGenerada.forEach((ele, index) => {
+                      ele.ind = index;
+                      ele.id_metrado = index;
+                    });
+                    //  });
+                  }
+                }
+              }
+            } else {
+              console.log('noExiste', indice);
+            }
+          }
+        }
+      }
+      const modificados = [this.filPres];
+      await this.guardarCambios(modificados);
+      this.highlighter.clear();
+      this.loading = false;
+    }
+  }
+
+  async eliminarVinExisten(arrayEliminar:any) {
+    await this.restaurarColoresOriginales();
+    if (this.filPres !== null && arrayEliminar.length) {
+      const vinculos = this.tablaMetrado[this.filPres].vinculos
+        ? JSON.parse(
+            JSON.stringify(this.tablaMetrado[this.filPres].vinculos?.split('|'))
+          )
+        : [];
+      for (const row of arrayEliminar) {
+        if (vinculos.includes(row.informacion.GlobalId.value)) {
+          const indice = vinculos.indexOf(row.informacion.GlobalId.value);
+          if (indice !== -1) {
+            let vinculos2 = JSON.parse(JSON.stringify(vinculos));
+            vinculos2.splice(indice, 1);
+            // const fragment = await this.busquedaFragmentos(
+            //   row.informacion.expressID
+            // );
+            this.tablaMetrado[this.filPres].nombredoc = vinculos2.length
+              ? this.selectedFile.name
+              : '';
+            this.tablaMetrado[this.filPres].clavedoc = vinculos2.length
+              ? this.codigoDocumento
+              : '';
+            this.tablaMetrado[this.filPres].color = vinculos2.length
+              ? this.colorDocumento
+              : '';
+            await this.resaltarVinculados(vinculos2);
+            await this.eliminarVinculoDeDatos(this.gruposVinc, row, false);
+            // this.listaVinculados.splice(ind, 1);
+            this.filaResum = null;
+            this.tablaMetrado[this.filPres].vinculos = vinculos2.join('|');
+          }
+        }
+      }
+      const modificados = [this.filPres];
+      await this.guardarCambios(modificados);
+      this.highlighter.clear();
+    }
+  }
+
   vincularResaltados() {
     if (this.filPres !== null && this.tablaMetrado[this.filPres].unidad) {
       this.confirmationService.confirm({
@@ -4665,9 +4906,9 @@ export class AppComponent implements OnInit, AfterViewInit {
           if (indice !== -1) {
             let vinculos2 = JSON.parse(JSON.stringify(vinculos));
             vinculos2.splice(indice, 1);
-            const fragment = await this.busquedaFragmentos(
-              row.informacion.expressID
-            );
+            // const fragment = await this.busquedaFragmentos(
+            //   row.informacion.expressID
+            // );
             this.tablaMetrado[this.filPres].nombredoc = vinculos2.length
               ? this.selectedFile.name
               : '';
@@ -4678,12 +4919,7 @@ export class AppComponent implements OnInit, AfterViewInit {
               ? this.colorDocumento
               : '';
             await this.resaltarVinculados(vinculos2);
-            await this.eliminarVinculoDeDatos(
-              this.gruposVinc,
-              row,
-              indice,
-              vinculos2
-            );
+            await this.eliminarVinculoDeDatos(this.gruposVinc, row);
             this.listaVinculados.splice(ind, 1);
             this.filaResum = null;
             this.tablaMetrado[this.filPres].vinculos = vinculos2.join('|');
@@ -4700,12 +4936,7 @@ export class AppComponent implements OnInit, AfterViewInit {
     }, 10);
   }
 
-  async eliminarVinculoDeDatos(
-    datos: any,
-    row: any,
-    indiceEl: any,
-    vinculos: any
-  ) {
+  async eliminarVinculoDeDatos(datos: any, row: any, almacenar = true) {
     this.gruposVisibles = [];
     let i = 0;
     let filTabGenElm: any[] = [];
@@ -4730,7 +4961,6 @@ export class AppComponent implements OnInit, AfterViewInit {
       }
       i++;
     }
-    console.log('datos', datos);
     this.gruposKeys = Object.keys(this.gruposVinc);
 
     this.selectGrupos = this.gruposKeys.map((_, index) => `G${index + 1}`);
@@ -4740,7 +4970,6 @@ export class AppComponent implements OnInit, AfterViewInit {
 
     for (const element of this.tablaPlantilla) {
       if (element.clave_metrado && element.clave_metrado !== 'M') {
-        console.log(element.descripcion);
         const index = this.gruposKeys.findIndex(
           (ele) => ele == element.descripcion
         );
@@ -4781,7 +5010,9 @@ export class AppComponent implements OnInit, AfterViewInit {
       // await this.guardarPlantilla();
       this.tablaDetalles[this.filPres] = this.tablaGenerada;
       await this.actuaPlantillaPres(this.filPres, this.tablaPlantilla);
-      this.guardarCambios([this.filPres]);
+      if (almacenar) {
+        this.guardarCambios([this.filPres]);
+      }
     }
   }
 
@@ -4901,13 +5132,10 @@ export class AppComponent implements OnInit, AfterViewInit {
     for (const element of nuevosElementos) {
       if (
         element.clave_metrado &&
-      
         element.tipo == 'Met' &&
         element.cantidad == ''
       ) {
-       
-        if (  element.clave_metrado !== 'M' ) {
-  
+        if (element.clave_metrado !== 'M') {
           element.cantidad = 'ACU';
           let indice = null;
           const match = element.clave_metrado.match(/\d+/);
@@ -4928,11 +5156,9 @@ export class AppComponent implements OnInit, AfterViewInit {
               element,
               filaSel
             );
-            console.log('noRepetidos', noRepetidos)
             const index = this.tablaGenerada.findIndex(
               (ele) => element.id_plantilla == ele.item
             );
-            console.log('index', index)
             for (const element of noRepetidos) {
               element.ejes = this.tablaGenerada[index].ejes;
               element.detalle = this.tablaGenerada[index].detalle;
@@ -4943,9 +5169,8 @@ export class AppComponent implements OnInit, AfterViewInit {
               ele.id_metrado = index;
             });
           }
-        
-        } else  {
-          element.cantidad = '1'
+        } else {
+          element.cantidad = '1';
         }
       }
     }
@@ -5250,19 +5475,25 @@ export class AppComponent implements OnInit, AfterViewInit {
     // this.tablaPlantilla = []
     this.filaPlantilla = null;
     if (option === 'metrado') {
+      this.paso = 2;
       this.pasoGenerarMetrado();
+    } else if (option == 'data') {
+      this.paso = 0;
+
+      await this.restaurarColoresOriginales();
+      this.filPres = null;
     } else {
       this.paso = 1;
-      this.tablaGenerada = [];
+      // this.tablaGenerada = [];
       this.mostrarPrevPlant = false;
       this.cerradoModalFormMan();
     }
     // this.limpiarVinculados();
-    await this.restaurarColoresOriginales();
+
     this.visible = false;
     this.visible2 = false;
     this.filSelVinc = null;
-    this.gruposVisibles = [];
+    // this.gruposVisibles = [];
     this.dataGrupoSel = null;
     this.ultimaCelda = null;
     this.visible3 = false;
@@ -5676,9 +5907,6 @@ export class AppComponent implements OnInit, AfterViewInit {
       filasDetall = this.tablaDetalles[ind];
     }
     const datosDetalle = await this.convertirDetalle(filasDetall);
-
-    console.log('filasPres', filasPres);
-    console.log('filasDetall', filasDetall);
     const datos1 = JSON.stringify(filasPres);
     const datos2 = JSON.stringify(datosDetalle);
     const obj = JSON.stringify({
@@ -5688,7 +5916,6 @@ export class AppComponent implements OnInit, AfterViewInit {
       datos2: datos2,
     });
     const response = await this.consulta.guardarMetradoIfc(obj);
-    console.log('response', response);
   }
 
   async blurInput(filPres: any, event: any, i: any, key: any) {
@@ -5836,7 +6063,10 @@ export class AppComponent implements OnInit, AfterViewInit {
     // this.eliminarTabGenAlmac(filPres);
   }
 
-  buscarFilaAnterior(rowActual: any, tablaPlantilla = this.tablaPlantilla): any {
+  buscarFilaAnterior(
+    rowActual: any,
+    tablaPlantilla = this.tablaPlantilla
+  ): any {
     const indexActual = tablaPlantilla.findIndex(
       (fila: any) => fila === rowActual
     );
@@ -5949,13 +6179,11 @@ export class AppComponent implements OnInit, AfterViewInit {
         const fila = this.tablaMetrado[this.filPres];
 
         if (!this.tablaDetalles[this.filPres].length && fila.plantilla) {
-          console.log('generar', this.tablaPlantilla);
           await this.generarDataPrevisualicion(
             this.tablaPlantilla,
             this.filPres
           );
         } else {
-          console.log('alamacenado');
           const tabla = this.tablaDetalles[this.filPres];
           this.tablaGenerada = await this.calculosTotales(tabla);
         }
@@ -6187,7 +6415,6 @@ export class AppComponent implements OnInit, AfterViewInit {
   async genDatFilPlant(fila: any, arr: any, filaSel: any, indice: any) {
     let arrayDesglosado = [];
     let j = 0;
-    console.log('arr', arr);
     for (const element of arr) {
       const map = await this.busquedaFragmentos(element.informacion.expressID);
       // const globalId = this.gruposGlobalIds[k][j]
@@ -6455,17 +6682,69 @@ export class AppComponent implements OnInit, AfterViewInit {
     }
   }
 
+  cerradoModalGrup() {
+    if (this.resalListaGrup) {
+      this.classifier.resetColor(this.resalListaGrup);
+      this.resalListaGrup = null;
+    }
+    this.resalListaGrup = null;
+  }
+
   async verInfoVincu(grupo: any, ele: any, retornar = false) {
+    if (this.resalListaGrup) {
+      this.classifier.resetColor(this.resalListaGrup);
+      this.resalListaGrup = null;
+    }
+    const concatenado: any = {};
+    function addToSet(uuid: string, value: any) {
+      if (value instanceof Set) {
+        value.forEach((val) => addToSet(uuid, val));
+      } else {
+        concatenado[uuid].add(value);
+      }
+    }
     this.filSelVinc = grupo + '-' + (ele !== null ? ele : '');
     const key = this.gruposKeys[grupo];
     const valor = this.gruposVinc[key];
     let data = null;
+    let map = null;
     if (ele == null) {
       data = valor[0];
+      for (const element of valor) {
+        const fragmentMap = await this.busquedaFragmentos(
+          element.informacion.expressID
+        );
+        if (!map) {
+          map = fragmentMap;
+        }
+        if (fragmentMap) {
+          Object.entries(fragmentMap).forEach(
+            ([uuid, value]: [string, any]) => {
+              if (!concatenado[uuid]) {
+                concatenado[uuid] = new Set();
+              }
+              addToSet(uuid, value);
+            }
+          );
+        }
+      }
     } else {
       data = valor[ele];
+      map = await this.busquedaFragmentos(data.informacion.expressID);
+      if (map) {
+        Object.entries(map).forEach(([uuid, value]: [string, any]) => {
+          if (!concatenado[uuid]) {
+            concatenado[uuid] = new Set();
+          }
+          addToSet(uuid, value);
+        });
+      }
     }
-    const map = await this.busquedaFragmentos(data.informacion.expressID);
+    if (concatenado && Object.keys(concatenado).length !== 0) {
+      const color = new THREE.Color(0xe7aa26);
+      this.classifier.setColor(concatenado, color);
+      this.resalListaGrup = concatenado;
+    }
     const datainfo = await this.verBounding(map);
     let proyecto = '';
     let nivel = '';
@@ -7490,6 +7769,14 @@ export class AppComponent implements OnInit, AfterViewInit {
     if (this.titSelect) {
       this.tablaMetrado = this.titSelect.elementos;
       this.tablaDetalles = this.titSelect.detalles;
+      this.filPres = null;
+      this.tablaGenerada = [];
+      this.tablaPlantilla = [];
+      this.mostrarPrevPlant = false;
+      this.visible = false;
+      this.visible2 = false;
+      this.visible3 = false;
+      this.visible4 = false;
     }
   }
 

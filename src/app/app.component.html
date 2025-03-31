@@ -1,11 +1,11 @@
-<div id="container" style="height: 98vh; width: 100vw; background-color: #a7abc4;"></div>
-<div class="card flex justify-center">
+<div id="container" style="height: 100vh; width: 100vw; background-color: #a7abc4;"></div>
+<!-- <div class="card flex justify-center"> -->
     <p-dialog header="Lista resumen vinculados" [(visible)]="visible" [style]="{ width: '28rem' }"
         styleClass="custom-dialog" (onHide)="cerradoModal()">
         <div class="d-flex justify-content-between mb-2">
             <span class="p-text-secondary block mb-8">Lista Elementos</span>
-            <button class="btn btn-mini2 btn-outline-danger" title ="Eliminar todos los vinculos" (click)="limpiarVinculosPartida()"
-                *ngIf="listaVinculados.length">
+            <button class="btn btn-mini2 btn-outline-danger" title="Eliminar todos los vinculos"
+                (click)="limpiarVinculosPartida()" *ngIf="listaVinculados.length">
                 <i class="fa fa-trash"></i>
             </button>
         </div>
@@ -21,8 +21,8 @@
                     pTooltip="{{row.informacion.Name.value}}" tooltipPosition="bottom" placeholder="Left"
                     (click)="resaltarSelResumen(i)">{{row.informacion.Name.value}}</li>
                 <li class="list-group-item" [ngClass]="{'highlight2': i == filaResum}">
-                    <button type="button" class="btn btn-mini2 bg-danger" style="color:white !important" title ="Eliminar vinculo" (click)="eliminarVinculo(row, i)"><i
-                            class="fa fa-times" ></i></button>
+                    <button type="button" class="btn btn-mini2 bg-danger" style="color:white !important"
+                        title="Eliminar vinculo" (click)="eliminarVinculo(row, i)"><i class="fa fa-times"></i></button>
                 </li>
             </ul>
         </ng-container>
@@ -31,11 +31,11 @@
             <p-button label="Save" (click)="visible = false" /> -->
         </div>
     </p-dialog>
-</div>
+<!-- </div> -->
 
-<div class="card flex justify-center">
+<!-- <div class="card flex justify-center"> -->
     <p-dialog header="Grupos vinculados" [(visible)]="visible2" [position]="'topright'" [style]="{ width: '28rem' }"
-        styleClass="custom-dialog">
+        styleClass="custom-dialog" (onHide)="cerradoModalGrup()">
 
         <ng-container *ngFor="let grupo of this.gruposKeys;let i = index">
             <ul class="list-group" style="font-size:8px !important; flex-direction:column !important">
@@ -156,9 +156,9 @@
             </div>
         </div>
     </p-dialog>
-</div>
+<!-- </div> -->
 
-<div class="card flex justify-center">
+<!-- <div class="card flex justify-center"> -->
     <p-dialog header="Url imagen " [(visible)]="visible3" [position]="'bottom'" [style]="{ width: '20rem' }"
         styleClass="custom-dialog-no-padding">
         <div class="input-container ">
@@ -178,9 +178,9 @@
         </div>
 
     </p-dialog>
-</div>
+<!-- </div> -->
 
-<div class="card flex justify-center">
+<!-- <div class="card flex justify-center"> -->
     <p-dialog header="Informacion manual" [(visible)]="visible4" [position]="'bottomright'" [closeOnEscape]="false"
         [style]="{ width: '30rem' }" (onHide)="cerradoModalFormMan()" styleClass="custom-dialog-no-padding">
 
@@ -261,7 +261,7 @@
                     class="fa fa-plus-square me-1"></i>Asignar Valor</button>
         </div>
     </p-dialog>
-</div>
+<!-- </div> -->
 
 <p-confirmDialog></p-confirmDialog>
 <p-toast></p-toast>
@@ -293,13 +293,15 @@
                         <i class="fa fa-list"></i> Metrado
                     </button> -->
                     <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
+                        <input (change)="onRadioChange('data')" type="radio" class="btn-check" name="btnradio"
+                            id="btnradio1" autocomplete="off" [checked]="paso == 0">
+                        <label class="btn btn-outline-primary" for="btnradio1">Data</label>
                         <input (change)="onRadioChange('vinculo')" type="radio" class="btn-check" name="btnradio"
-                            id="btnradio1" autocomplete="off" [checked]="paso == 1">
-                        <label class="btn btn-outline-primary" for="btnradio1">Vinculo</label>
-
+                            id="btnradio2" autocomplete="off" [checked]="paso == 1">
+                        <label class="btn btn-outline-primary" for="btnradio2">Vinculo </label>
                         <input (change)="onRadioChange('metrado')" type="radio" class="btn-check" name="btnradio"
-                            id="btnradio2" autocomplete="off" [checked]="paso == 2">
-                        <label class="btn btn-outline-primary" for="btnradio2">Metrado</label>
+                            id="btnradio3" autocomplete="off" [checked]="paso == 2">
+                        <label class="btn btn-outline-primary" for="btnradio3">Metrado</label>
                     </div>
                 </div>
             </ng-container>
@@ -345,13 +347,13 @@
         </div>
 
         <div class="col-12 h-tablas-container">
-            <div class="col-12 px-3" *ngIf="vinculoActivado || paso == 2">
+            <div class="col-12 px-3" *ngIf="paso == 1 || paso == 2">
                 <p-dropdown [options]="tablaMetradoTit" [(ngModel)]="titSelect" optionLabel="titulo"
                     placeholder="Selecciona un titulo" [style]="{ width: '100%' , 'font-size': '10px', padding: '0px'}"
                     (ngModelChange)="cambioTitulo()">
                 </p-dropdown>
             </div>
-            <div class="col-12 b-containers  overflow-auto" *ngIf="vinculoActivado || paso == 2"
+            <div class="col-12 b-containers  overflow-auto" *ngIf="paso == 1 || paso == 2"
                 [ngClass]="{'h-50-15':!maximizarPlant, 'h-25-15':maximizarPlant}">
                 <div class="w-100 h-100">
                     <table class=" table-bordered w-100">
@@ -379,9 +381,8 @@
                         <tbody>
                             <tr *ngFor="let row of tablaMetrado; let i = index" [hidden]="row.mostrar == 0">
                                 <td class="text-center" (click)="selFilTabMetr(row,i)"
-                                    [ngClass]="{'highlight-row': this.filPres == row.ind }">{{i+1}}</td>
-                                <td (click)="selFilTabMetr(row,i)"
-                                    [ngClass]="{'highlight-row': this.filPres == row.ind }">
+                                    [ngClass]="{'highlight-row': this.filPres == i }">{{i+1}}</td>
+                                <td (click)="selFilTabMetr(row,i)" [ngClass]="{'highlight-row': this.filPres == i }">
                                     <!-- {{row.item}} -->
                                     <div class="d-flex" style="width: 350px;">
                                         <div class="recortatextlinea" [title]="row.descripcion"
@@ -403,22 +404,21 @@
                                     </div>
                                 </td>
                                 <td class="text-center" style="width: 40px;" (click)="selFilTabMetr(row,i)"
-                                    [ngClass]="{'highlight-row': this.filPres == row.ind }">
+                                    [ngClass]="{'highlight-row': this.filPres == i }">
                                     {{row.unidad}}
                                 </td>
                                 <td class="text-end" (click)="selFilTabMetr(row,i)"
-                                    [ngClass]="{'highlight-row': this.filPres == row.ind }">
+                                    [ngClass]="{'highlight-row': this.filPres == i }">
                                     <ng-container *ngIf="row.unidad">
                                         {{row.cant_metrado ? (row.cant_metrado | number: '0.' + this.decimales + '-' +
                                         this.decimales) : row.cant_metrado}}
                                     </ng-container>
                                 </td>
                                 <td (click)="selFilTabMetr(row,i)" class="text-center"
-                                    [ngClass]="{'highlight-row': this.filPres == row.ind }">
+                                    [ngClass]="{'highlight-row': this.filPres == i }">
                                     <!-- {{row.vinculos}} -->
                                     <div class="d-flex justify-content-center ">
                                         <button class="btn btn-mini2 btn-outline-secondary cst-btn-tb"
-                                            [disabled]="row.clavedoc && row.clavedoc !== codigoDocumento"
                                             style="border-radius: 3px !important;"
                                             [style.visibility]="row.vinculos && row.unidad ? 'visible':'hidden'"
                                             (click)="verVinculados(row)" title="Ver resumen vinculados">
@@ -458,8 +458,8 @@
                 </div>
             </div>
             <!-- input busqueda -->
-            <ng-container *ngIf="paso == 1">
-                <div class="col-12 d-flex mt-1" *ngIf="vinculoActivado" style="margin-left:8px ">
+            <ng-container *ngIf="paso == 0">
+                <!-- <div class="col-12 d-flex mt-1"  style="margin-left:8px ">
                     <input pInputText style="height: 25px; border: 1px solid darkgray;" type="text" class="w-50"
                         [(ngModel)]="searchText" placeholder="Buscar elemento...">
                     <button type="button" class="btn btn-outline-secondary btn-mini2" (click)="searchText = ''"
@@ -473,12 +473,12 @@
                             pTooltip="Contraer todo del mismo nivel" tooltipPosition="bottom"><i
                                 class="fa fa-caret-up"></i></button>
                     </div>
-                </div>
+                </div> -->
                 <!-- tablas de ifc niveles y agrupamiento -->
-                <div class="col-12 b-containers h-50 contenido-centrado">
+                <div class="col-12 b-containers  contenido-centrado" style="height: 47%;">
                     <ng-container *ngIf=" selectedFile && !buscando && !buscando2 ">
                         <div class="w-100 h-100 overflow-auto mt-2">
-                            <ng-container *ngIf="tipoTabla == 0">
+                            <!-- <ng-container *ngIf="tipoTabla == 0"> -->
                                 <table class=" table-bordered w-100">
                                     <thead class="head-sticky text-center">
                                         <tr>
@@ -493,7 +493,7 @@
                                             </th>
                                             <th class="propertiesPanel" [style.width.px]="200">TIPO</th>
                                             <th class="propertiesPanel" [style.min-width.px]="250">ELEMENTO</th>
-                                            <th [style.width.px]="40" *ngIf="vinculoActivado"></th>
+                                            <!-- <th [style.width.px]="40" ></th> -->
                                             <!-- <th class="propertiesPanel" [style.width.px]="60">DESCRIPC.</th> -->
                                         </tr>
                                     </thead>
@@ -548,21 +548,21 @@
                                                         </td>
                                                         <td [ngClass]="{'highlight-row': this.filaSel == row.ind }">
                                                             {{row.informacion?.Name?.value}}</td>
-                                                        <td class="text-center j-c" *ngIf="vinculoActivado"
+                                                        <!-- <td class="text-center j-c" 
                                                             [ngClass]="{'highlight-row': this.filaSel == row.ind }">
                                                             <ng-container *ngIf="row.nivel > 2 && !multPres">
                                                                 <div class="form-check form-switch"
                                                                     style="min-height: 0;" (click)="onCheckboxClick()">
                                                                     <input class="form-check-input" type="checkbox"
                                                                         [disabled]="(this.filPres == null || this.filPres !== null && !this.tablaMetrado[this.filPres].unidad) || bloqVincPartid"
-                                                                        (change)="sliderIfc(row,i,$event, 1)"
+                                                                        (change)="sliderIfc(row,i,$event)"
                                                                         id="flexSwitchCheckChecked"
                                                                         [checked]="row.vinculado">
                                                                     <label class="form-check-label"
                                                                         for="flexSwitchCheckChecked"></label>
                                                                 </div>
                                                             </ng-container>
-                                                        </td>
+                                                        </td> -->
                                                     </tr>
                                                 </ng-container>
                                             </ng-container>
@@ -576,9 +576,9 @@
 
                                     </tbody>
                                 </table>
-                            </ng-container>
-                            <ng-container *ngIf="tipoTabla == 1">
-                                <table class=" table-bordered w-100">
+                            <!-- </ng-container>
+                            <ng-container *ngIf="tipoTabla == 1"> -->
+                                <!-- <table class=" table-bordered w-100">
                                     <thead class="head-sticky text-center">
                                         <tr>
                                             <th colspan="4">
@@ -593,7 +593,6 @@
                                             <th class="propertiesPanel" [style.width.px]="200">TIPO</th>
                                             <th class="propertiesPanel" [style.min-width.px]="250">ELEMENTO</th>
                                             <th [style.width.px]="22"></th>
-                                            <!-- <th class="propertiesPanel" [style.width.px]="60">DESCRIPC.</th> -->
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -647,8 +646,8 @@
                                             </ng-container>
                                         </ng-container>
                                     </tbody>
-                                </table>
-                            </ng-container>
+                                </table> -->
+                            <!-- </ng-container> -->
                         </div>
 
                     </ng-container>
@@ -751,7 +750,209 @@
 
                 </div>
             </ng-container>
+            <ng-container *ngIf="paso == 1">
+                <div class="col-12 d-flex mt-1"  style="margin-left:8px ">
+                    <input pInputText style="height: 25px; border: 1px solid darkgray;" type="text" class="w-50"
+                        [(ngModel)]="searchText" placeholder="Buscar elemento...">
+                    <button type="button" class="btn btn-outline-secondary btn-mini2" (click)="searchText = ''"
+                        style="border-radius: 0px 5px 5px 0px;"><i class="fa fa-times"></i></button>
+
+                    <div class="btn-group" style="position: absolute; right:10px">
+                        <button type="button" class="btn btn-outline-secondary btn-mini2" (click)="expandirMismoNivel()"
+                            pTooltip="Expandir todo del mismo nivel" tooltipPosition="bottom"><i
+                                class="fa fa-caret-down"></i></button>
+                        <button type="button" class="btn btn-outline-secondary btn-mini2" (click)="contraerMismoNivel()"
+                            pTooltip="Contraer todo del mismo nivel" tooltipPosition="bottom"><i
+                                class="fa fa-caret-up"></i></button>
+                    </div>
+                </div>
+                <!-- tablas de ifc niveles y agrupamiento -->
+                <div class="col-12 b-containers h-50 contenido-centrado">
+                    <ng-container *ngIf=" selectedFile && !buscando && !buscando2 ">
+                        <div class="w-100 h-100 overflow-auto mt-2">
+                            <!-- <ng-container *ngIf="tipoTabla == 0"> -->
+                                <table class=" table-bordered w-100">
+                                    <thead class="head-sticky text-center">
+                                        <tr>
+                                            <th colspan="5">
+                                                NIVELES
+                                            </th>
+                                        </tr>
+                                        <tr>
+                                            <th class="propertiesPanel" [style.width.px]="20"></th>
+                                            <th class="propertiesPanel" [style.width.px]="30">
+                                                <i class="fa fa-eye" title="Elemento visible en el grafico"></i>
+                                            </th>
+                                            <th class="propertiesPanel" [style.width.px]="200">TIPO</th>
+                                            <th class="propertiesPanel" [style.min-width.px]="250">ELEMENTO</th>
+                                            <th [style.width.px]="40"></th>
+                                            <!-- <th class="propertiesPanel" [style.width.px]="60">DESCRIPC.</th> -->
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <ng-container *ngIf="dataIFC.length">
+                                            <ng-container
+                                                *ngFor="let row of dataIFC | filterData:searchText; let i = index;">
+                                                <ng-container *ngIf="row.mostrar || searchText">
+                                                    <tr (click)="seleccionRow(row,i)" #fila tabindex="0">
+                                                        <td class="text-center"
+                                                            [ngClass]="{'highlight-row': this.filaSel == row.ind }">
+                                                            {{i +1}}
+                                                        </td>
+                                                        <td class="text-center"
+                                                            [ngClass]="{'highlight-row': this.filaSel == row.ind }">
+                                                            <input class="form-check-input" type="checkbox"
+                                                                [checked]="row.visible"
+                                                                (change)="hiderRow(row, $event, i)">
+                                                        </td>
+                                                        <td class="text-center"
+                                                            [ngClass]="{'highlight-row': this.filaSel == row.ind }">
+                                                            <div class="d-flex align-content-center"
+                                                                [ngStyle]="{'margin-left':  (row.nivel * 10)  + 'px'}">
+                                                                <ng-container *ngIf="!searchText">
+                                                                    <i class="fa fa-minus-square text-danger btn-cst align-content-center"
+                                                                        *ngIf="!row.active && row.nivel <= 4"
+                                                                        (click)="toggleRow(i, false)"></i>
+                                                                    <i class="fa fa-plus-square text-success btn-cst align-content-center"
+                                                                        *ngIf="row.active && row.nivel <= 4"
+                                                                        (click)="toggleRow(i, true)"></i>
+                                                                </ng-container>
+
+                                                                <span class="badge rounded-pill text-bg-secondary ms-1"
+                                                                    *ngIf="row.claseTraducida == 'Nivel de Edificio'; else otro">
+                                                                    {{row.claseTraducida}}
+                                                                </span>
+                                                                <ng-template #otro>
+
+                                                                    <div class="ms-1 text-start "
+                                                                        [ngStyle]="{'text-decoration': row.nivel == 4 ? 'underline': '', 'font-weight':  row.nivel == 4 ? '600': ''}">
+                                                                        {{row.claseTraducida}}
+                                                                    </div>
+
+                                                                </ng-template>
+                                                                <div class="ms-1 align-self-center"
+                                                                    title="grupos dentro de este nivel"
+                                                                    *ngIf="(row.nivel < 5 && row.nivel > 2 || row.nivel == 0) && !searchText">
+                                                                    ({{row.nroIncluidos}})
+                                                                </div>
+                                                            </div>
+
+                                                        </td>
+                                                        <td [ngClass]="{'highlight-row': this.filaSel == row.ind }">
+                                                            {{row.informacion?.Name?.value}}</td>
+                                                        <td class="text-center j-c"
+                                                            [ngClass]="{'highlight-row': this.filaSel == row.ind }">
+                                                            <ng-container *ngIf="row.nivel > 2 && !multPres">
+                                                                <div class="form-check form-switch"
+                                                                    style="min-height: 0;" (click)="onCheckboxClick()">
+                                                                    <input class="form-check-input" type="checkbox"
+                                                                        [disabled]="(this.filPres == null || this.filPres !== null && !this.tablaMetrado[this.filPres].unidad) || bloqVincPartid"
+                                                                        (change)="sliderIfc(row,i,$event)"
+                                                                        id="flexSwitchCheckChecked"
+                                                                        [checked]="row.vinculado">
+                                                                    <label class="form-check-label"
+                                                                        for="flexSwitchCheckChecked"></label>
+                                                                </div>
+                                                            </ng-container>
+                                                        </td>
+                                                    </tr>
+                                                </ng-container>
+                                            </ng-container>
+                                            <ng-container *ngIf="(dataIFC | filterData:searchText).length === 0">
+                                                <tr>
+                                                    <td colspan="5" class="text-center">No se encontraron resultados
+                                                    </td>
+                                                </tr>
+                                            </ng-container>
+                                        </ng-container>
+
+                                    </tbody>
+                                </table>
+                            <!-- </ng-container>
+                            <ng-container *ngIf="tipoTabla == 1"> -->
+                                <!-- <table class=" table-bordered w-100">
+                                    <thead class="head-sticky text-center">
+                                        <tr>
+                                            <th colspan="4">
+                                                AGRUPAMIENTOS
+                                            </th>
+                                        </tr>
+                                        <tr>
+                                            <th class="propertiesPanel" [style.width.px]="40">
+                                                <input class="form-check-input" type="checkbox"
+                                                    (change)="hiderRow2(null,$event,0)" checked>
+                                            </th>
+                                            <th class="propertiesPanel" [style.width.px]="200">TIPO</th>
+                                            <th class="propertiesPanel" [style.min-width.px]="250">ELEMENTO</th>
+                                            <th [style.width.px]="22"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <ng-container *ngIf="tablaGrupos.length">
+                                            <ng-container *ngFor="let row of tablaGrupos; let i = index;">
+                                                <ng-container *ngIf="row.mostrar">
+                                                    <tr (click)="seleccionRow2(row,i)" #fila tabindex="0">
+
+                                                        <td class="text-center"
+                                                            [ngClass]="{'highlight-row': this.filaSel == row.ind }">
+                                                            <input class="form-check-input" type="checkbox"
+                                                                [checked]="row.visible"
+                                                                (change)="hiderRow2(row, $event, i)">
+                                                        </td>
+                                                        <td class="text-center"
+                                                            [ngClass]="{'highlight-row': this.filaSel == row.ind }">
+                                                            <div class="d-flex align-content-center"
+                                                                [ngStyle]="{'margin-left':  (row.nivel == 4 ?  5 : 15)  + 'px'}">
+                                                                <i class="fa fa-minus btn-cst align-content-center"
+                                                                    *ngIf="!row.active && row.nivel <= 4"
+                                                                    (click)="toggleRow2(i, false)"></i>
+                                                                <i class="fa fa-plus btn-cst align-content-center"
+                                                                    *ngIf="row.active && row.nivel <= 4"
+                                                                    (click)="toggleRow2(i, true)"></i>
+                                                                <span class="badge rounded-pill text-bg-secondary ms-1"
+                                                                    *ngIf="row.claseTraducida == 'Piso de Edificio'; else otro">{{row.claseTraducida}}</span>
+                                                                <ng-template #otro>
+
+                                                                    <div class="ms-1 text-start"
+                                                                        [ngStyle]="{'text-decoration': row.nivel == 4 ? 'underline': ''}">
+                                                                        {{row.claseTraducida}}
+                                                                    </div>
+
+                                                                </ng-template>
+                                                            </div>
+
+                                                        </td>
+                                                        <td [ngClass]="{'highlight-row': this.filaSel == row.ind }">
+                                                            {{row.informacion?.Name?.value}}</td>
+                                                        <td class="text-center justify-items-center"
+                                                            [ngClass]="{'highlight-row': this.filaSel == row.ind }">
+                                                            <div class="form-check form-switch" style="min-height: 0;">
+                                                                <input class="form-check-input" type="checkbox"
+                                                                    id="flexSwitchCheckChecked">
+                                                                <label class="form-check-label"
+                                                                    for="flexSwitchCheckChecked"></label>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                </ng-container>
+                                            </ng-container>
+                                        </ng-container>
+                                    </tbody>
+                                </table> -->
+                            <!-- </ng-container> -->
+                        </div>
+
+                    </ng-container>
+                    <ng-container *ngIf="buscando && !buscando2">
+                        <span class="loader"></span>
+                    </ng-container>
+                    <ng-container *ngIf="buscando2 && !buscando">
+                        <span class="loader2"></span>
+                    </ng-container>
+                </div>
+            </ng-container>
             <ng-container *ngIf="paso == 2">
+                <!-- acciones de tabla plantilla -->
                 <div class="col-12 px-2 d-flex justify-content-between ">
                     <ng-container
                         *ngIf="this.filPres !== null &&  
@@ -827,7 +1028,7 @@
 
                 <div class="col-12 b-containers  centrado overflow-auto" #tableContainer
                     [ngClass]="{'h-50-15':!maximizarPlant, 'h-75-15':maximizarPlant}">
-
+                    <!-- tabla plantilla -->
                     <table class=" table-bordered w-100 cust-table">
                         <thead class="head-sticky text-center">
                             <tr class="tamaño-tr">
@@ -935,7 +1136,8 @@
                                     (click)="habEditPlant(i,'n_veces')"
                                     [ngClass]="{'titulo-stilo': row.tipo == 'Tit',  'metrado-stilo': row.tipo == 'Met', 'submetrado-stilo': row.tipo == 'Subm'}">
                                     <ng-container *ngIf="row.editarn_veces; else noEditn_veces">
-                                        <input autocomplete="off" appAutoFocus (blur)="blurInput(filPres,$event, i, 'n_veces')"
+                                        <input autocomplete="off" appAutoFocus
+                                            (blur)="blurInput(filPres,$event, i, 'n_veces')"
                                             (keydown)="onKeyDown($event, i, 'n_veces')" class="w-100 " type="text"
                                             [value]="row.n_veces">
                                     </ng-container>
@@ -946,8 +1148,9 @@
                                 <td class="text-center" style="width:70px !important" (click)="habEditPlant(i,'largo')"
                                     [ngClass]="{'titulo-stilo': row.tipo == 'Tit',  'metrado-stilo': row.tipo == 'Met', 'submetrado-stilo': row.tipo == 'Subm'}">
                                     <ng-container *ngIf="row.editarlargo; else noEditlargo">
-                                        <input autocomplete="off" appAutoFocus (blur)="blurInput(filPres,$event, i, 'largo')"
-                                        (keydown.enter)="blurInput(filPres,$event, i, 'largo')"
+                                        <input autocomplete="off" appAutoFocus
+                                            (blur)="blurInput(filPres,$event, i, 'largo')"
+                                            (keydown.enter)="blurInput(filPres,$event, i, 'largo')"
                                             (keydown)="onKeyDown($event, i, 'largo')" class="w-100 " type="text"
                                             [value]="row.largo">
                                     </ng-container>
@@ -959,8 +1162,9 @@
                                 <td class="text-center" style="width:70px !important" (click)="habEditPlant(i,'ancho')"
                                     [ngClass]="{'titulo-stilo': row.tipo == 'Tit',  'metrado-stilo': row.tipo == 'Met', 'submetrado-stilo': row.tipo == 'Subm'}">
                                     <ng-container *ngIf="row.editarancho; else noEditancho">
-                                        <input autocomplete="off" appAutoFocus (blur)="blurInput(filPres,$event, i, 'ancho')"
-                                        (keydown.enter)="blurInput(filPres,$event, i, 'ancho')"
+                                        <input autocomplete="off" appAutoFocus
+                                            (blur)="blurInput(filPres,$event, i, 'ancho')"
+                                            (keydown.enter)="blurInput(filPres,$event, i, 'ancho')"
                                             (keydown)="onKeyDown($event, i, 'ancho')" class="w-100" type="text"
                                             [value]="row.ancho">
                                     </ng-container>
@@ -972,8 +1176,9 @@
                                 <td class="text-center" style="width:70px !important" (click)="habEditPlant(i,'altura')"
                                     [ngClass]="{'titulo-stilo': row.tipo == 'Tit',  'metrado-stilo': row.tipo == 'Met', 'submetrado-stilo': row.tipo == 'Subm'}">
                                     <ng-container *ngIf="row.editaraltura; else noEditaltura">
-                                        <input autocomplete="off" appAutoFocus (blur)="blurInput(filPres,$event, i, 'altura')"
-                                        (keydown.enter)="blurInput(filPres,$event, i, 'altura')"
+                                        <input autocomplete="off" appAutoFocus
+                                            (blur)="blurInput(filPres,$event, i, 'altura')"
+                                            (keydown.enter)="blurInput(filPres,$event, i, 'altura')"
                                             (keydown)="onKeyDown($event, i, 'altura')" class="w-100 " type="text"
                                             [value]="row.altura">
                                     </ng-container>
@@ -998,7 +1203,7 @@
     </div>
     <div class="barra-acciones d-flex justify-content-between align-content-center "
         *ngIf="selectedFile && dataIFC.length && mostrarNavbar ">
-        <div class="align-content-center">
+        <!-- <div class="align-content-center"> -->
             <!-- <button type="button" class="btn btn-mini2 ms-1" style="border-color:darkgrey" 
                 [title]="!vinculoActivado ? 'Activar Vinculo': 'Cancelar Vinculo'"
                 [ngClass]="{'btn-outline-success': !vinculoActivado, 'bg-secondary': vinculoActivado}"
@@ -1006,10 +1211,10 @@
                 <i class="fa " [ngClass]="{'fa-sliders': !vinculoActivado, 'fa-ban text-white': vinculoActivado}"></i>
                 <ng-container *ngIf="!vinculoActivado"> Vincular</ng-container>
             </button> -->
-        </div>
+        <!-- </div> -->
 
         <div class="d-flex">
-            <button type="button" class="btn btn-mini2 btn-success me-2" *ngIf="isNotEmpty && filPres !== null"
+            <button type="button" class="btn btn-mini2 btn-success me-2" [style.visibility]="(isNotEmpty && filPres !== null && paso !== 0) ? 'visible' : 'hidden'"
                 title="vincular Seleccionados" (click)="vincularResaltados()">
                 <i class="fa fa-server text-white"> Vincular</i>
             </button>
@@ -1173,6 +1378,7 @@
                     <i class="fa fa-video-camera"></i>
                 </button>
             </div>
+           
         </div>
 
         <ng-container *ngIf="vinculoActivado">
@@ -1206,11 +1412,13 @@
                         </button>
                     </div> -->
                     <label class="d-flex align-items-center ">
-                        <p-checkbox [binary]="true" class="chb-cst" [ngModel]="verColEjes" (onChange)="cambioCheckColum($event,'ejes')"></p-checkbox>
+                        <p-checkbox [binary]="true" class="chb-cst" [ngModel]="verColEjes"
+                            (onChange)="cambioCheckColum($event,'ejes')"></p-checkbox>
                         <span style="font-size:10px; font-weight:bolder; cursor:pointer">Ver columna Ejes</span>
                     </label>
                     <label class="d-flex align-items-center ms-2">
-                        <p-checkbox [binary]="true" class="chb-cst" [ngModel]="verColDetalle" (onChange)="cambioCheckColum($event,'detalle')"></p-checkbox>
+                        <p-checkbox [binary]="true" class="chb-cst" [ngModel]="verColDetalle"
+                            (onChange)="cambioCheckColum($event,'detalle')"></p-checkbox>
                         <span style="font-size:10px; font-weight:bolder; cursor:pointer">Ver columna Detalle</span>
                     </label>
                 </div>
@@ -1249,11 +1457,11 @@
                             </td>
                             <td class="color-celda text-center" *ngIf="verColDetalle" [style.width.px]="100">
                                 <div class="d-flex justify-content-center align-content-center">
-                                <div> Detalle</div>
-                                <div>
-                                    <i class="fa fa-pencil ms-1" title="Columna editable"></i>
+                                    <div> Detalle</div>
+                                    <div>
+                                        <i class="fa fa-pencil ms-1" title="Columna editable"></i>
+                                    </div>
                                 </div>
-                            </div>
                             </td>
                             <td class="color-celda text-center col-70">Cantidad</td>
                             <td class="color-celda text-center col-70">N° Veces</td>
@@ -1271,7 +1479,8 @@
                                 (click)="selFilTabGenera(i)" [ngClass]="{'highlight2': filTabGenerada.includes(i)}">
                                 <ng-container *ngIf="row.mostrar">
                                     <td class=" text-center" *ngIf="verColEjes || verColDetalle">
-                                        <p-checkbox [binary]="true" class="chb-cst" (onChange)="cambioCheckTabGen($event, i)"
+                                        <p-checkbox [binary]="true" class="chb-cst"
+                                            (onChange)="cambioCheckTabGen($event, i)"
                                             [ngModel]="row.checked"></p-checkbox>
                                     </td>
                                     <td class="color-celda text-center" [style.width.px]="30">
@@ -1302,12 +1511,13 @@
                                             {{row.ejes}}
                                         </ng-template>
                                     </td>
-                                    <td class="recortatextlinea" [style.width.px]="100" *ngIf="verColDetalle" (click)=" row.checked ? row.editardetalle = true : row.editardetalle = false">
+                                    <td class="recortatextlinea" [style.width.px]="100" *ngIf="verColDetalle"
+                                        (click)=" row.checked ? row.editardetalle = true : row.editardetalle = false">
                                         <ng-container *ngIf="row.editardetalle; else noEditdetalle">
                                             <input autocomplete="off" appAutoFocus
                                                 (blur)="blurTablaGenerada($event, i, 'detalle')" class="w-100 "
-                                                (keydown.enter)="blurTablaGenerada($event, i, 'detalle')"
-                                                type="text" [value]="row.detalle">
+                                                (keydown.enter)="blurTablaGenerada($event, i, 'detalle')" type="text"
+                                                [value]="row.detalle">
                                         </ng-container>
                                         <ng-template #noEditdetalle>
                                             {{row.detalle}}
